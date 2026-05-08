@@ -602,6 +602,8 @@
 // CONFIG
 // ============================================================
 var SOCRATA_URL = 'https://data.texas.gov/resource/7358-krk7.json';
+var CSE_KEY = '';
+var CSE_ID  = '';
 var AC_TYPES = ['A/C Contractor', 'A/C Technician', 'A/C CE Provider'];
 
 // ============================================================
@@ -953,18 +955,53 @@ function lookupContactInfo() {
   setTimeout(sendHeight, 100);
   track('contact_lookup_clicked', { business: lastSearchedName });
 
+  if (!CSE_KEY || !CSE_ID) { showContactFallback(strip); return; }
+
   var county = lastSearchedCounty
     ? lastSearchedCounty.charAt(0) + lastSearchedCounty.slice(1).toLowerCase() + ' County TX'
     : 'Forney TX';
-  var query = lastSearchedName + ' ' + county + ' HVAC contractor';
-  var url = 'https://api.duckduckgo.com/?q=' + encodeURIComponent(query) +
-    '&format=json&no_html=1&skip_disambig=1';
+  var query = lastSearchedName + ' ' + county;
+  var url = 'https://www.googleapis.com/customsearch/v1' +
+    '?key=' + CSE_KEY +
+    '&cx='  + CSE_ID  +
+    '&num=3' +
+    '&q='   + encodeURIComponent(query);
 
   fetch(url)
     .then(function(res) { return res.json(); })
     .then(function(data) {
-      var phone   = data.Phone || '';
-      var website = data.AbstractURL || '';
+      var items = data.items || [];
+      var phone = '';
+      var website = '';
+
+      for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        var pm = item.pagemap || {};
+
+        // Structured data: LocalBusiness schema on their site
+        var lb = pm.localbusiness && pm.localbusiness[0];
+        if (lb) {
+          phone   = phone   || lb.telephone || lb.phone || '';
+          website = website || lb.url || '';
+        }
+
+        // Meta tags (og:phone_number, contact info)
+        var meta = pm.metatags && pm.metatags[0];
+        if (meta) {
+          phone   = phone   || meta['og:phone_number'] || meta['business:contact_data:phone_number'] || '';
+          website = website || meta['og:url'] || '';
+        }
+
+        // Regex parse phone from snippet as last resort
+        if (!phone) {
+          var m = (item.snippet || '').match(/\(?\d{3}\)?[\s.\-]\d{3}[\s.\-]\d{4}/);
+          if (m) phone = m[0];
+        }
+
+        website = website || item.link || '';
+        if (phone || website) break;
+      }
+
       if (!phone && !website) {
         showContactFallback(strip);
       } else {
