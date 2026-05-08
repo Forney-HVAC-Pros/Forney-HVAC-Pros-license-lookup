@@ -692,7 +692,11 @@ function doSearch() {
     if (!num) { showNotFound('Please enter a valid license number.'); return; }
     url = SOCRATA_URL + '?license_number=' + encodeURIComponent(num) + '&$limit=5';
   } else {
-    url = SOCRATA_URL + '?$q=' + encodeURIComponent(raw) + '&$limit=20';
+    var pattern = buildNamePattern(raw);
+    if (!pattern) { showNotFound('Please enter at least two characters to search.'); return; }
+    url = SOCRATA_URL + '?$where=' + encodeURIComponent(
+      "upper(business_name) like '" + pattern + "' OR upper(owner_name) like '" + pattern + "'"
+    ) + '&$limit=15';
   }
 
   fetch(url)
@@ -703,7 +707,7 @@ function doSearch() {
       var records = data;
       if (searchMode === 'name') {
         var acOnly = data.filter(function(r) { return AC_TYPES.indexOf(r.license_type) !== -1; });
-        records = acOnly.length ? acOnly : data.slice(0, 5);
+        records = acOnly.length ? acOnly : data;
       }
 
       if (!records.length) { showNotFound(); return; }
@@ -715,6 +719,17 @@ function doSearch() {
       }
     })
     .catch(function() { showError(); });
+}
+
+function buildNamePattern(raw) {
+  var clean = raw
+    .replace(/[&'"%_]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toUpperCase();
+  var words = clean.split(' ').filter(function(w) { return w.length >= 2; });
+  if (!words.length) return null;
+  return '%' + words.join('%') + '%';
 }
 
 function showSingleResult(record) {
