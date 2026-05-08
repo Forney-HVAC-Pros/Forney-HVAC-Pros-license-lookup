@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Texas HVAC License | Forney HVAC Pros</title>
+  <meta name="description" content="Instantly verify any Texas HVAC contractor&#39;s TDLR license status. Free lookup tool &#8212; check before you hire.">
+  <link rel="canonical" href="https://forneyhvacpros.com/verify-hvac-license">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Verify Texas HVAC License | Forney HVAC Pros">
+  <meta property="og:description" content="Instantly verify any Texas HVAC contractor&#39;s TDLR license. Free lookup &#8212; check before you hire.">
+  <meta property="og:url" content="https://forneyhvacpros.com/verify-hvac-license">
+  <meta property="og:site_name" content="Forney HVAC Pros">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Texas HVAC License Verification Tool",
+    "description": "Free tool to instantly verify any HVAC contractor’s Texas TDLR A/C license status.",
+    "url": "https://forneyhvacpros.com/verify-hvac-license",
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "provider": { "@type": "LocalBusiness", "name": "Forney HVAC Pros", "url": "https://forneyhvacpros.com" }
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9LSH07TDFN"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-9LSH07TDFN');
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:   #172620;
+      --blue:    #1061FE;
+      --orange:  #994D0A;
+      --cream:   #F7F6F2;
+      --dark:    #111827;
+      --mid:     #4B5563;
+      --light:   #9CA3AF;
+      --border:  #E5E7EB;
+      --white:   #FFFFFF;
+      --red:     #DC2626;
+    }
+
+    body {
+      font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+      min-height: 100vh;
+      padding: 24px 16px 80px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 4px;
+      padding: 28px 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 20px rgba(0,0,0,0.06);
+      margin-bottom: 16px;
+    }
+
+    /* ---- Search ---- */
+    .search-heading {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 22px; font-weight: 600;
+      color: var(--dark); margin-bottom: 6px;
+    }
+    .search-sub {
+      font-size: 14px; color: var(--mid);
+      margin-bottom: 20px; line-height: 1.5;
+    }
+
+    .tab-row {
+      display: flex; width: fit-content;
+      border: 1.5px solid var(--border);
+      border-radius: 4px; overflow: hidden;
+      margin-bottom: 14px;
+    }
+    .tab-btn {
+      padding: 8px 18px; font-size: 13px; font-weight: 600;
+      color: var(--mid); background: var(--white);
+      border: none; cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.15s;
+    }
+    .tab-btn:first-child { border-right: 1.5px solid var(--border); }
+    .tab-btn.active { background: var(--green); color: var(--white); }
+
+    .search-row { display: flex; gap: 10px; }
+    .search-input {
+      flex: 1; padding: 12px 16px;
+      border: 1.5px solid var(--border); border-radius: 4px;
+      font-size: 16px; color: var(--dark);
+      font-family: 'Inter', sans-serif;
+      transition: border-color 0.15s; background: var(--white);
+    }
+    .search-input:focus { outline: none; border-color: var(--blue); }
+    .search-input::placeholder { color: var(--light); }
+
+    .btn-search {
+      padding: 12px 24px; background: var(--blue);
+      color: var(--white); border: none; border-radius: 4px;
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .btn-search:hover { background: #0050E0; }
+
+    .search-hint { font-size: 12px; color: var(--light); margin-top: 8px; }
+
+    /* ---- Loading ---- */
+    .loading-wrap { text-align: center; padding: 40px 20px; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border); border-top-color: var(--blue);
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+      margin: 0 auto 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-wrap p { font-size: 14px; color: var(--mid); }
+
+    /* ---- Result banner ---- */
+    .result-banner {
+      border-radius: 4px; padding: 20px 24px;
+      margin-bottom: 16px;
+      display: flex; align-items: flex-start; gap: 16px;
+    }
+    .result-banner.active { background: #DCFCE7; border: 1.5px solid #86EFAC; }
+    .result-banner.expired,
+    .result-banner.not-found { background: #FEF2F2; border: 1.5px solid #FECACA; }
+
+    .result-icon {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .result-banner.active .result-icon { background: #16A34A; }
+    .result-banner.expired .result-icon,
+    .result-banner.not-found .result-icon { background: var(--red); }
+
+    .result-info { flex: 1; min-width: 0; }
+    .result-status {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.07em;
+      text-transform: uppercase; margin-bottom: 4px;
+    }
+    .result-banner.active .result-status { color: #15803D; }
+    .result-banner.expired .result-status,
+    .result-banner.not-found .result-status { color: var(--red); }
+
+    .result-name {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 20px; font-weight: 600;
+      color: var(--dark); margin-bottom: 8px;
+    }
+    .result-meta { display: flex; flex-wrap: wrap; gap: 14px; }
+    .meta-item { font-size: 13px; color: var(--mid); }
+    .meta-item strong { color: var(--dark); }
+
+    .network-toggle-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 14px; padding: 10px 18px;
+      background: none; border: 1.5px solid var(--border);
+      border-radius: 4px; font-size: 13px; font-weight: 600;
+      color: var(--mid); cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: all 0.15s;
+    }
+    .network-toggle-btn:hover { border-color: var(--green); color: var(--green); }
+
+    /* ---- Multiple results ---- */
+    .results-list { list-style: none; }
+    .result-row {
+      padding: 12px 16px; border: 1.5px solid var(--border);
+      border-radius: 4px; margin-bottom: 8px;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .result-row:hover { border-color: var(--blue); background: #EFF6FF; }
+    .result-row-name { font-size: 14px; font-weight: 600; color: var(--dark); }
+    .result-row-meta { font-size: 12px; color: var(--mid); margin-top: 2px; }
+
+    /* ---- Network section ---- */
+    .network-label {
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .network-label.primary { color: var(--red); }
+    .network-label.secondary { color: var(--mid); }
+
+    .network-heading {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 18px; font-weight: 600;
+      color: var(--dark); margin-bottom: 4px;
+    }
+    .network-sub { font-size: 13px; color: var(--mid); margin-bottom: 18px; line-height: 1.5; }
+
+    /* ---- Trust strip ---- */
+    .trust-strip {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      padding: 12px 16px; margin-bottom: 16px;
+      background: var(--cream); border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+    .trust-chip { display: flex; align-items: center; gap: 6px; }
+    .trust-icon {
+      width: 28px; height: 28px; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 9px; letter-spacing: 0.03em;
+      font-family: 'Inter', sans-serif; flex-shrink: 0;
+    }
+    .trust-icon.bbb { background: #CC0000; color: white; font-size: 8px; letter-spacing: 0.04em; }
+    .trust-icon.google { background: white; border: 1.5px solid var(--border); }
+    .trust-icon.tdlr { background: #002868; color: white; font-size: 13px; }
+    .trust-icon.nextdoor { background: #00B140; color: white; }
+    .trust-icon.free { background: var(--green); color: white; font-size: 10px; }
+    .trust-chip-label { font-size: 11px; color: var(--mid); font-weight: 500; }
+
+    /* ---- Filter pills ---- */
+    .filter-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .filter-pill {
+      padding: 7px 16px; border-radius: 99px;
+      font-size: 13px; font-weight: 600;
+      border: 1.5px solid var(--border);
+      background: var(--white); color: var(--mid);
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: all 0.15s;
+    }
+    .filter-pill:hover { border-color: var(--green); color: var(--green); }
+    .filter-pill.active { background: var(--green); border-color: var(--green); color: var(--white); }
+
+    /* ---- Contractor cards ---- */
+    .contractor-card {
+      background: var(--white); border-radius: 4px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 2px 12px rgba(0,0,0,0.05);
+      margin-bottom: 12px;
+      border-left: 4px solid var(--green);
+      transition: box-shadow 0.15s;
+    }
+    .contractor-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1), 0 4px 20px rgba(0,0,0,0.08); }
+
+    .contractor-card-top {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 10px;
+      margin-bottom: 8px;
+    }
+    .contractor-name {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 16px; font-weight: 600; color: var(--dark);
+      margin-bottom: 3px;
+    }
+    .contractor-badge {
+      font-size: 10px; font-weight: 700;
+      padding: 3px 9px; border-radius: 3px;
+      white-space: nowrap; flex-shrink: 0;
+      background: var(--green); color: var(--white);
+    }
+    .contractor-rating {
+      display: flex; align-items: center; gap: 5px; margin-bottom: 10px;
+    }
+    .stars { color: #F59E0B; font-size: 13px; }
+    .rating-value { font-size: 13px; font-weight: 700; color: var(--dark); }
+    .rating-count { font-size: 12px; color: var(--light); }
+    .est-tag { font-size: 12px; color: var(--border); }
+
+    .contractor-strengths { list-style: none; margin-bottom: 14px; }
+    .contractor-strengths li {
+      font-size: 13px; color: var(--mid);
+      display: flex; align-items: flex-start; gap: 7px;
+      margin-bottom: 4px; line-height: 1.4;
+    }
+    .contractor-strengths li::before {
+      content: '\2713'; color: var(--green);
+      font-weight: 700; flex-shrink: 0; margin-top: 1px;
+    }
+
+    .contractor-footer {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 10px;
+    }
+    .mini-badges { display: flex; gap: 4px; }
+    .mini-badge {
+      width: 22px; height: 22px; border-radius: 3px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 7px; letter-spacing: 0.02em;
+      font-family: 'Inter', sans-serif; flex-shrink: 0;
+    }
+    .mini-badge.bbb { background: #CC0000; color: white; font-size: 6px; }
+    .mini-badge.google { background: white; border: 1.5px solid var(--border); }
+    .mini-badge.tdlr { background: #002868; color: white; font-size: 10px; }
+    .mini-badge.nextdoor { background: #00B140; color: white; }
+    .mini-badge.free { background: var(--green); color: white; font-size: 8px; }
+
+    .btn-call {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 10px 20px; background: var(--orange);
+      color: var(--white); border-radius: 4px;
+      font-size: 14px; font-weight: 600; text-decoration: none;
+      font-family: 'Inter', sans-serif; transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .btn-call:hover { background: #7A3D07; }
+
+    .btn-quote {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 10px 20px; background: var(--white);
+      color: var(--blue); border: 1.5px solid var(--blue);
+      border-radius: 4px; font-size: 14px; font-weight: 600;
+      text-decoration: none; font-family: 'Inter', sans-serif;
+      transition: background 0.15s; white-space: nowrap;
+    }
+    .btn-quote:hover { background: #EFF6FF; }
+
+    /* ---- Utils ---- */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in { animation: fadeIn 0.3s ease forwards; }
+    .hidden { display: none !important; }
+
+    @media (max-width: 600px) {
+      .card { padding: 20px 18px; }
+      .search-row { flex-direction: column; }
+      .btn-search { width: 100%; }
+      .search-heading { font-size: 19px; }
+      .result-meta { flex-direction: column; gap: 6px; }
+      .contractor-footer { flex-direction: column; align-items: flex-start; }
+      .btn-call, .btn-quote { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Search Card -->
+  <div class="card" id="search-card">
+    <h1 class="search-heading">Verify a Texas HVAC License</h1>
+    <p class="search-sub">Check any A/C contractor or technician&#8217;s TDLR license status before you hire. Takes 2 seconds &#8212; powered by live TDLR data.</p>
+
+    <div class="tab-row">
+      <button class="tab-btn active" id="tab-number" onclick="setSearchMode('number')">License Number</button>
+      <button class="tab-btn" id="tab-name" onclick="setSearchMode('name')">Business / Name</button>
+    </div>
+
+    <div class="search-row">
+      <input
+        type="text"
+        class="search-input"
+        id="search-input"
+        placeholder="Enter license number..."
+        inputmode="numeric"
+        autocomplete="off"
+        onkeydown="if(event.key==='Enter')doSearch()"
+      >
+      <button class="btn-search" id="search-btn" onclick="doSearch()">Look Up</button>
+    </div>
+    <p class="search-hint" id="search-hint">Example: 590 or ACR-00590</p>
+  </div>
+
+  <!-- Loading -->
+  <div class="hidden" id="state-loading">
+    <div class="loading-wrap">
+      <div class="spinner"></div>
+      <p>Checking TDLR records&#8230;</p>
+    </div>
+  </div>
+
+  <!-- Multiple results picker -->
+  <div class="card hidden animate-in" id="state-multiple">
+    <div style="font-family:'Lora',Georgia,serif;font-size:18px;font-weight:600;color:var(--dark);margin-bottom:4px;">Multiple records found</div>
+    <p style="font-size:13px;color:var(--mid);margin-bottom:16px;">Select the contractor you&#8217;re looking for:</p>
+    <ul class="results-list" id="multiple-list"></ul>
+  </div>
+
+  <!-- Result state -->
+  <div class="hidden animate-in" id="state-result">
+
+    <!-- Banner -->
+    <div class="result-banner" id="result-banner">
+      <div class="result-icon" id="result-icon"></div>
+      <div class="result-info">
+        <div class="result-status" id="result-status-text"></div>
+        <div class="result-name" id="result-name"></div>
+        <div class="result-meta" id="result-meta"></div>
+        <div id="result-actions"></div>
+      </div>
+    </div>
+
+    <!-- Network Card -->
+    <div class="card" id="network-card">
+      <div style="margin-bottom:16px;">
+        <div class="network-label" id="network-label"></div>
+        <div class="network-heading" id="network-heading"></div>
+        <div class="network-sub" id="network-sub"></div>
+      </div>
+
+      <!-- Trust strip -->
+      <div class="trust-strip">
+        <div class="trust-chip">
+          <div class="trust-icon bbb">BBB</div>
+          <span class="trust-chip-label">A+ Rated</span>
+        </div>
+        <div class="trust-chip">
+          <div class="trust-icon google">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19.6 10.23c0-.68-.06-1.36-.17-2H10v3.79h5.39a4.6 4.6 0 0 1-2 3.02v2.5h3.24c1.9-1.75 3-4.33 3-7.31z" fill="#4285F4"/>
+              <path d="M10 20c2.7 0 4.96-.9 6.62-2.46l-3.24-2.5c-.9.6-2.04.96-3.38.96-2.6 0-4.8-1.75-5.59-4.11H1.07v2.58A10 10 0 0 0 10 20z" fill="#34A853"/>
+              <path d="M4.41 11.89A6 6 0 0 1 4.1 10c0-.65.11-1.29.31-1.89V5.53H1.07A10 10 0 0 0 0 10c0 1.61.39 3.14 1.07 4.47l3.34-2.58z" fill="#FBBC05"/>
+              <path d="M10 3.96c1.47 0 2.79.5 3.83 1.5l2.86-2.86C14.95.99 12.7 0 10 0A10 10 0 0 0 1.07 5.53l3.34 2.58C5.2 5.71 7.4 3.96 10 3.96z" fill="#EA4335"/>
+            </svg>
+          </div>
+          <span class="trust-chip-label">4.8&#8211;5.0 &#9733;</span>
+        </div>
+        <div class="trust-chip">
+          <div class="trust-icon tdlr">&#9733;</div>
+          <span class="trust-chip-label">TDLR Licensed</span>
+        </div>
+        <div class="trust-chip">
+          <div class="trust-icon nextdoor">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 2L2 8.5V18h5.5v-5h5v5H18V8.5L10 2z" fill="white"/>
+            </svg>
+          </div>
+          <span class="trust-chip-label">Nextdoor Fav</span>
+        </div>
+        <div class="trust-chip">
+          <div class="trust-icon free">$0</div>
+          <span class="trust-chip-label">Always Free</span>
+        </div>
+      </div>
+
+      <!-- Filter pills -->
+      <div class="filter-row">
+        <button class="filter-pill active" data-filter="all" onclick="applyFilter('all')">All Services</button>
+        <button class="filter-pill" data-filter="ac_repair" onclick="applyFilter('ac_repair')">AC Repair</button>
+        <button class="filter-pill" data-filter="heating" onclick="applyFilter('heating')">Heating Repair</button>
+        <button class="filter-pill" data-filter="new_install" onclick="applyFilter('new_install')">New Install</button>
+        <button class="filter-pill" data-filter="emergency" onclick="applyFilter('emergency')">Emergency</button>
+      </div>
+
+      <!-- Contractor cards injected here -->
+      <div id="contractor-list"></div>
+    </div>
+
+  </div><!-- /state-result -->
+
+</div><!-- /container -->
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+var SOCRATA_URL = 'https://data.texas.gov/resource/7358-krk7.json';
+var AC_TYPES = ['A/C Contractor', 'A/C Technician', 'A/C CE Provider'];
+
+// ============================================================
+// CONTRACTOR DATA
+// ============================================================
+var CONTRACTORS = {
+  jandr: {
+    id: 'jandr',
+    name: 'J&amp;R Plumbing, Heating and Air',
+    phone: '(214) 391-1600',
+    phoneHref: 'tel:2143911600',
+    rating: 5.0,
+    reviewCount: '25+',
+    since: '1965',
+    badge: 'Est. 1965',
+    strengths: [
+      'Emergency service available same-day',
+      'Serving Forney since 1965 &#8212; 58+ years local',
+      'Forney Chamber of Commerce Award 2025'
+    ]
+  },
+  williams: {
+    id: 'williams',
+    name: 'Williams Services AC &amp; Heating',
+    phone: '(214) 676-5909',
+    phoneHref: 'tel:2146765909',
+    rating: 4.9,
+    reviewCount: '75',
+    since: '1997',
+    badge: '10-Yr Warranty',
+    strengths: [
+      '10-year parts &amp; labor warranty &#8212; best in area',
+      'Flat-rate pricing &#8212; no surprise charges',
+      'Veteran-owned, owner personally on every job'
+    ]
+  },
+  bolton: {
+    id: 'bolton',
+    name: 'Bolton Heating &amp; Air',
+    phone: null,
+    phoneHref: null,
+    rating: 4.9,
+    reviewCount: '270+',
+    since: '2017',
+    badge: 'BBB A+',
+    strengths: [
+      '0% financing on new system installs',
+      'BBB A+ accredited &#8212; 270+ verified reviews',
+      'Full residential &amp; commercial service'
+    ]
+  },
+  infinity: {
+    id: 'infinity',
+    name: 'Infinity Texas Air',
+    phone: '(972) 465-9788',
+    phoneHref: 'tel:9724659788',
+    rating: 4.8,
+    reviewCount: '1,500+',
+    since: '2016',
+    badge: 'Nextdoor Fav',
+    strengths: [
+      'Available 7am&#8211;7pm, 7 days a week',
+      '1,500+ verified Google reviews',
+      'Nextdoor Neighborhood Favorite 2021 &amp; 2023'
+    ]
+  }
+};
+
+var FILTER_ORDER = {
+  all:        ['jandr', 'williams', 'bolton', 'infinity'],
+  ac_repair:  ['infinity', 'jandr', 'williams', 'bolton'],
+  heating:    ['jandr', 'williams', 'infinity', 'bolton'],
+  new_install:['bolton', 'williams', 'jandr', 'infinity'],
+  emergency:  ['jandr', 'infinity']
+};
+
+var FILTER_TOP_BADGE = {
+  all:         'Top Rated',
+  ac_repair:   'Best for AC Repair',
+  heating:     'Best for Heating',
+  new_install: 'Install Specialist',
+  emergency:   'Emergency First Call'
+};
+
+// ============================================================
+// STATE
+// ============================================================
+var searchMode = 'number';
+var activeFilter = 'all';
+var networkVisible = false;
+var lastResultType = 'active';
+
+// ============================================================
+// SEARCH MODE TOGGLE
+// ============================================================
+function setSearchMode(mode) {
+  searchMode = mode;
+  document.getElementById('tab-number').className = 'tab-btn' + (mode === 'number' ? ' active' : '');
+  document.getElementById('tab-name').className   = 'tab-btn' + (mode === 'name'   ? ' active' : '');
+  var input = document.getElementById('search-input');
+  if (mode === 'number') {
+    input.placeholder = 'Enter license number...';
+    input.inputMode = 'numeric';
+    document.getElementById('search-hint').textContent = 'Example: 590 or ACR-00590';
+  } else {
+    input.placeholder = 'Enter business or owner name...';
+    input.inputMode = 'text';
+    document.getElementById('search-hint').textContent = 'Example: Bolton Heating or Williams Services';
+  }
+  input.value = '';
+  input.focus();
+  hideAllStates();
+}
+
+// ============================================================
+// SEARCH
+// ============================================================
+function doSearch() {
+  var raw = document.getElementById('search-input').value.trim();
+  if (!raw) return;
+  showState('loading');
+  track('license_search_performed', { search_type: searchMode });
+
+  var url;
+  if (searchMode === 'number') {
+    var num = raw.replace(/\D/g, '');
+    if (!num) { showNotFound('Please enter a valid license number.'); return; }
+    url = SOCRATA_URL + '?license_number=' + encodeURIComponent(num) + '&$limit=5';
+  } else {
+    url = SOCRATA_URL + '?$q=' + encodeURIComponent(raw) + '&$limit=20';
+  }
+
+  fetch(url)
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (!data || !data.length) { showNotFound(); return; }
+
+      var records = data;
+      if (searchMode === 'name') {
+        var acOnly = data.filter(function(r) { return AC_TYPES.indexOf(r.license_type) !== -1; });
+        records = acOnly.length ? acOnly : data.slice(0, 5);
+      }
+
+      if (!records.length) { showNotFound(); return; }
+
+      if (searchMode === 'name' && records.length > 1) {
+        showMultiple(records);
+      } else {
+        showSingleResult(records[0]);
+      }
+    })
+    .catch(function() { showError(); });
+}
+
+function showSingleResult(record) {
+  var today = new Date();
+  var isActive = false;
+  var expDisplay = 'Unknown';
+  var expRaw = record.license_expiration_date_mmddccyy || '';
+  if (expRaw) {
+    var parts = expRaw.split('/');
+    if (parts.length === 3) {
+      var expDate = new Date(parseInt(parts[2], 10), parseInt(parts[0], 10) - 1, parseInt(parts[1], 10));
+      isActive = expDate >= today;
+      expDisplay = expRaw;
+    }
+  }
+  track('license_result_viewed', { result: isActive ? 'active' : 'expired', license_type: record.license_type || 'unknown' });
+  renderResult(record, isActive, expDisplay);
+}
+
+// ============================================================
+// RENDER RESULT
+// ============================================================
+function renderResult(record, isActive, expDisplay) {
+  lastResultType = isActive ? 'active' : 'failed';
+  networkVisible = false;
+
+  var banner   = document.getElementById('result-banner');
+  var icon     = document.getElementById('result-icon');
+  var statusEl = document.getElementById('result-status-text');
+  var nameEl   = document.getElementById('result-name');
+  var metaEl   = document.getElementById('result-meta');
+  var actionsEl= document.getElementById('result-actions');
+
+  banner.className = 'result-banner animate-in ' + (isActive ? 'active' : 'expired');
+
+  icon.innerHTML = isActive
+    ? '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M4 11l5 5 9-10" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    : '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M6 6l10 10M16 6L6 16" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>';
+
+  statusEl.textContent = isActive ? 'Active TDLR License' : 'License Expired or Not Active';
+
+  var displayName = record.owner_name || record.business_name || 'Unknown';
+  nameEl.textContent = displayName;
+
+  var subtype = record.license_subtype ? ' (' + record.license_subtype + ')' : '';
+  metaEl.innerHTML =
+    '<span class="meta-item"><strong>License #</strong> ' + (record.license_number || '&mdash;') + '</span>' +
+    '<span class="meta-item"><strong>Type</strong> ' + (record.license_type || '&mdash;') + subtype + '</span>' +
+    '<span class="meta-item"><strong>Expires</strong> ' + expDisplay + '</span>';
+
+  var networkCard = document.getElementById('network-card');
+  var networkLabel   = document.getElementById('network-label');
+  var networkHeading = document.getElementById('network-heading');
+  var networkSub     = document.getElementById('network-sub');
+
+  if (isActive) {
+    actionsEl.innerHTML =
+      '<button class="network-toggle-btn" onclick="toggleNetwork()">' +
+        '<svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+        '<span id="network-toggle-label">Compare with our vetted local network</span>' +
+      '</button>';
+    networkCard.classList.add('hidden');
+    networkLabel.className = 'network-label secondary';
+    networkLabel.textContent = 'Our Vetted Network';
+    networkHeading.textContent = 'Want to compare quotes?';
+    networkSub.textContent = 'All four contractors below hold active TDLR licenses, are 4.8+ stars on Google, and are locally based in Forney and Kaufman County.';
+  } else {
+    actionsEl.innerHTML = '';
+    networkCard.classList.remove('hidden');
+    networkLabel.className = 'network-label primary';
+    networkLabel.textContent = 'Find a Verified Contractor Instead';
+    networkHeading.textContent = 'Our pre-vetted local network is ready to help';
+    networkSub.textContent = 'Every contractor below holds an active TDLR license, has a minimum 4.8-star Google rating, and is locally based in Forney and Kaufman County. Free to homeowners &#8212; always.';
+  }
+
+  applyFilter('all');
+  showState('result');
+}
+
+// ============================================================
+// NOT FOUND / ERROR
+// ============================================================
+function showNotFound(msg) {
+  lastResultType = 'failed';
+  networkVisible = false;
+
+  var banner   = document.getElementById('result-banner');
+  var icon     = document.getElementById('result-icon');
+  var statusEl = document.getElementById('result-status-text');
+  var nameEl   = document.getElementById('result-name');
+  var metaEl   = document.getElementById('result-meta');
+  var actionsEl= document.getElementById('result-actions');
+
+  banner.className = 'result-banner animate-in not-found';
+  icon.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="8" stroke="white" stroke-width="2.5"/><path d="M11 7v5M11 14v1" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>';
+  statusEl.textContent = 'No Active License Found';
+  nameEl.textContent = msg || 'This license could not be verified in TDLR records';
+  metaEl.innerHTML = '<span class="meta-item" style="color:var(--red);">The license may be expired, invalid, or not categorized as an A/C contractor or technician.</span>';
+  actionsEl.innerHTML = '';
+
+  var networkCard = document.getElementById('network-card');
+  networkCard.classList.remove('hidden');
+  document.getElementById('network-label').className   = 'network-label primary';
+  document.getElementById('network-label').textContent  = 'Find a Verified Contractor Instead';
+  document.getElementById('network-heading').textContent = 'Our pre-vetted local network is ready to help';
+  document.getElementById('network-sub').textContent    = 'Every contractor below holds an active TDLR license, has a minimum 4.8-star Google rating, and is locally based in Forney and Kaufman County. Free to homeowners &#8212; always.';
+
+  applyFilter('all');
+  track('license_result_viewed', { result: 'not_found' });
+  showState('result');
+}
+
+function showError() {
+  showNotFound('Could not reach TDLR records right now. Try again, or call us at (469) 898-3774.');
+}
+
+// ============================================================
+// NETWORK TOGGLE (active result only)
+// ============================================================
+function toggleNetwork() {
+  networkVisible = !networkVisible;
+  var networkCard = document.getElementById('network-card');
+  var label = document.getElementById('network-toggle-label');
+  if (networkVisible) {
+    networkCard.classList.remove('hidden');
+    label.textContent = 'Hide contractor network';
+    track('network_expanded', { context: 'active_result' });
+  } else {
+    networkCard.classList.add('hidden');
+    label.textContent = 'Compare with our vetted local network';
+  }
+  setTimeout(sendHeight, 150);
+}
+
+// ============================================================
+// FILTER
+// ============================================================
+function applyFilter(filter) {
+  activeFilter = filter;
+  document.querySelectorAll('.filter-pill').forEach(function(p) {
+    p.className = 'filter-pill' + (p.dataset.filter === filter ? ' active' : '');
+  });
+
+  var ids = FILTER_ORDER[filter] || FILTER_ORDER.all;
+  var list = document.getElementById('contractor-list');
+  list.innerHTML = '';
+  ids.forEach(function(id, idx) {
+    var c = CONTRACTORS[id];
+    if (c) list.appendChild(buildContractorCard(c, idx === 0, filter));
+  });
+
+  if (filter !== 'all') track('filter_applied', { filter: filter });
+  setTimeout(sendHeight, 150);
+}
+
+function buildContractorCard(c, isFirst, filter) {
+  var card = document.createElement('div');
+  card.className = 'contractor-card animate-in';
+
+  var badgeLabel = isFirst ? (FILTER_TOP_BADGE[filter] || 'Top Rated') : c.badge;
+
+  var callBtn;
+  if (c.phoneHref) {
+    callBtn = '<a href="' + c.phoneHref + '" class="btn-call" target="_blank" rel="noopener" ' +
+      'onclick="track(\'call_clicked\',{contractor:\'' + c.id + '\',context:\'license_lookup\',filter:\'' + filter + '\'})">' +
+      '&#9742; ' + c.phone + '</a>';
+  } else {
+    callBtn = '<a href="https://forneyhvacpros.com/find-contractor" class="btn-quote" target="_blank" rel="noopener" ' +
+      'onclick="track(\'quote_link_clicked\',{contractor:\'' + c.id + '\',context:\'license_lookup\'})">' +
+      'Get a Free Quote &rarr;</a>';
+  }
+
+  var miniBadges =
+    '<div class="mini-badges">' +
+      '<div class="mini-badge bbb" title="BBB A+ Rated">BBB</div>' +
+      '<div class="mini-badge google" title="4.8-5.0 Google Stars">' +
+        '<svg width="10" height="10" viewBox="0 0 20 20" fill="none">' +
+          '<path d="M19.6 10.23c0-.68-.06-1.36-.17-2H10v3.79h5.39a4.6 4.6 0 0 1-2 3.02v2.5h3.24c1.9-1.75 3-4.33 3-7.31z" fill="#4285F4"/>' +
+          '<path d="M10 20c2.7 0 4.96-.9 6.62-2.46l-3.24-2.5c-.9.6-2.04.96-3.38.96-2.6 0-4.8-1.75-5.59-4.11H1.07v2.58A10 10 0 0 0 10 20z" fill="#34A853"/>' +
+          '<path d="M4.41 11.89A6 6 0 0 1 4.1 10c0-.65.11-1.29.31-1.89V5.53H1.07A10 10 0 0 0 0 10c0 1.61.39 3.14 1.07 4.47l3.34-2.58z" fill="#FBBC05"/>' +
+          '<path d="M10 3.96c1.47 0 2.79.5 3.83 1.5l2.86-2.86C14.95.99 12.7 0 10 0A10 10 0 0 0 1.07 5.53l3.34 2.58C5.2 5.71 7.4 3.96 10 3.96z" fill="#EA4335"/>' +
+        '</svg>' +
+      '</div>' +
+      '<div class="mini-badge tdlr" title="Active TDLR License">&#9733;</div>' +
+      '<div class="mini-badge nextdoor" title="Nextdoor Favorite">' +
+        '<svg width="10" height="10" viewBox="0 0 20 20" fill="none"><path d="M10 2L2 8.5V18h5.5v-5h5v5H18V8.5L10 2z" fill="white"/></svg>' +
+      '</div>' +
+      '<div class="mini-badge free" title="Free to homeowners">$0</div>' +
+    '</div>';
+
+  card.innerHTML =
+    '<div class="contractor-card-top">' +
+      '<div>' +
+        '<div class="contractor-name">' + c.name + '</div>' +
+        '<div class="contractor-rating">' +
+          '<span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>' +
+          '<span class="rating-value">' + c.rating.toFixed(1) + '</span>' +
+          '<span class="rating-count">(' + c.reviewCount + ' reviews)</span>' +
+          '<span class="est-tag">&#183; Est. ' + c.since + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<span class="contractor-badge">' + badgeLabel + '</span>' +
+    '</div>' +
+    '<ul class="contractor-strengths">' +
+      c.strengths.map(function(s) { return '<li>' + s + '</li>'; }).join('') +
+    '</ul>' +
+    '<div class="contractor-footer">' +
+      miniBadges +
+      callBtn +
+    '</div>';
+
+  return card;
+}
+
+// ============================================================
+// MULTIPLE RESULTS
+// ============================================================
+function showMultiple(records) {
+  var acFirst = records.filter(function(r) { return AC_TYPES.indexOf(r.license_type) !== -1; })
+    .concat(records.filter(function(r) { return AC_TYPES.indexOf(r.license_type) === -1; }));
+
+  var list = document.getElementById('multiple-list');
+  list.innerHTML = '';
+  acFirst.slice(0, 8).forEach(function(record) {
+    var li = document.createElement('li');
+    li.className = 'result-row';
+    li.onclick = function() { showSingleResult(record); };
+    var name = record.owner_name || record.business_name || 'Unknown';
+    var exp  = record.license_expiration_date_mmddccyy || '&mdash;';
+    li.innerHTML =
+      '<div class="result-row-name">' + name + '</div>' +
+      '<div class="result-row-meta">License #' + (record.license_number || '?') +
+        ' &bull; ' + (record.license_type || 'Unknown type') +
+        ' &bull; Exp: ' + exp + '</div>';
+    list.appendChild(li);
+  });
+
+  showState('multiple');
+}
+
+// ============================================================
+// UI STATE
+// ============================================================
+function showState(state) {
+  document.getElementById('state-loading').classList.add('hidden');
+  document.getElementById('state-multiple').classList.add('hidden');
+  document.getElementById('state-result').classList.add('hidden');
+  if (state === 'loading')  document.getElementById('state-loading').classList.remove('hidden');
+  if (state === 'multiple') document.getElementById('state-multiple').classList.remove('hidden');
+  if (state === 'result')   document.getElementById('state-result').classList.remove('hidden');
+  setTimeout(sendHeight, 100);
+  setTimeout(sendHeight, 500);
+}
+
+function hideAllStates() {
+  document.getElementById('state-loading').classList.add('hidden');
+  document.getElementById('state-multiple').classList.add('hidden');
+  document.getElementById('state-result').classList.add('hidden');
+  sendHeight();
+}
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function sendHeight() {
+  window.parent.postMessage({ iframeHeight: document.documentElement.scrollHeight }, '*');
+}
+
+function track(event, params) {
+  if (typeof gtag !== 'undefined') gtag('event', event, params || {});
+}
+
+window.addEventListener('load', sendHeight);
+track('license_tool_started');
+</script>
+
+<noscript>
+<div style="max-width:760px;margin:40px auto;padding:24px;font-family:sans-serif;line-height:1.6;">
+  <h1>Verify a Texas HVAC License | Forney HVAC Pros</h1>
+  <p>Free tool to verify any HVAC contractor&#8217;s TDLR license status in Texas. Enter a license number or business name to check active status before you hire.</p>
+  <p>To verify manually, visit the <a href="https://www.tdlr.texas.gov/LicenseSearch/">TDLR License Search</a>.</p>
+  <h2>Our Vetted Contractor Network in Forney, TX</h2>
+  <ul>
+    <li><strong>J&amp;R Plumbing, Heating and Air</strong> &#8212; 5.0 stars &#8212; (214) 391-1600 &#8212; Emergency service, serving Forney since 1965</li>
+    <li><strong>Williams Services AC &amp; Heating</strong> &#8212; 4.9 stars &#8212; (214) 676-5909 &#8212; 10-year warranty, flat-rate pricing, veteran-owned</li>
+    <li><strong>Bolton Heating &amp; Air</strong> &#8212; 4.9 stars &#8212; BBB A+, 0% financing, new system installs</li>
+    <li><strong>Infinity Texas Air</strong> &#8212; 4.8 stars &#8212; (972) 465-9788 &#8212; 7am&#8211;7pm 7 days, 1,500+ reviews</li>
+  </ul>
+  <p>All contractors hold active TDLR licenses, maintain a 4.8+ Google rating, and are based in Forney/Kaufman County. Free matching service &#8212; no cost to homeowners.</p>
+  <p>Contact us: (469) 898-3774 | info@forneyhvacpros.com | <a href="https://forneyhvacpros.com">forneyhvacpros.com</a></p>
+</div>
+</noscript>
+</body>
+</html>
