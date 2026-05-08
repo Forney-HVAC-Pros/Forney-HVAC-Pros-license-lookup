@@ -871,17 +871,24 @@ function renderResult(record, isActive, expDisplay) {
     var known = KNOWN_CONTACTS[record.license_number];
     var contactHtml = '';
     if (known && (known.phone || known.website)) {
+      var labelStyle = 'font-size:14px;font-weight:700;color:#15803D;margin-bottom:4px;';
+      var colStyle = 'display:flex;flex-direction:column;gap:0;';
       if (known.phone) {
-        contactHtml += '<span style="width:100%;font-size:14px;font-weight:700;color:#15803D;">&#8595; Click to call this contractor</span>';
-        contactHtml += '<a href="' + known.phoneHref + '" class="btn-contact-call" target="_blank" rel="noopener" ' +
+        contactHtml += '<div style="' + colStyle + '">' +
+          '<span style="' + labelStyle + '">&#8595; Click to call</span>' +
+          '<a href="' + known.phoneHref + '" class="btn-contact-call" target="_blank" rel="noopener" ' +
           'onclick="track(\'contact_call_clicked\',{source:\'known\',business:\'' + displayName.replace(/'/g, '') + '\'})">' +
-          '&#9742;&nbsp;' + known.phone + '</a>';
+          '&#9742;&nbsp;' + known.phone + '</a>' +
+          '</div>';
       }
       if (known.website) {
         var domain = known.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/.*$/, '');
-        contactHtml += '<a href="' + known.website + '" class="btn-contact-web" target="_blank" rel="noopener" ' +
+        contactHtml += '<div style="' + colStyle + '">' +
+          '<span style="' + labelStyle + '">&#8599; Visit website</span>' +
+          '<a href="' + known.website + '" class="btn-contact-web" target="_blank" rel="noopener" ' +
           'onclick="track(\'contact_website_clicked\',{source:\'known\',business:\'' + displayName.replace(/'/g, '') + '\'})">' +
-          domain + ' &rarr;</a>';
+          domain + ' &rarr;</a>' +
+          '</div>';
       }
     } else if (inServiceArea) {
       contactHtml = '<button class="network-toggle-btn contact-lookup-btn" id="contact-lookup-btn" onclick="lookupContactInfo()">Find Phone &amp; Website</button>';
