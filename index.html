@@ -789,10 +789,15 @@ function renderResult(record, isActive, expDisplay) {
   var ownerLine = (businessName && ownerName)
     ? '<span class="meta-item"><strong>License holder</strong> ' + ownerName + '</span>'
     : '';
+  var countyRaw = record.business_county || '';
+  var countyLine = countyRaw
+    ? '<span class="meta-item"><strong>County</strong> ' + countyRaw.charAt(0) + countyRaw.slice(1).toLowerCase() + '</span>'
+    : '';
   metaEl.innerHTML =
     ownerLine +
     '<span class="meta-item"><strong>License #</strong> ' + (record.license_number || '&mdash;') + '</span>' +
     '<span class="meta-item"><strong>Type</strong> ' + (record.license_type || '&mdash;') + subtype + '</span>' +
+    countyLine +
     '<span class="meta-item"><strong>Expires</strong> ' + expDisplay + '</span>';
 
   var networkCard = document.getElementById('network-card');
