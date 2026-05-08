@@ -255,12 +255,20 @@
 
     .result-info { flex: 1; min-width: 0; }
     .result-status {
+      display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
       font-size: 11px; font-weight: 700; letter-spacing: 0.07em;
       text-transform: uppercase; margin-bottom: 4px;
     }
     .result-banner.active .result-status { color: #15803D; }
     .result-banner.expired .result-status,
     .result-banner.not-found .result-status { color: var(--red); }
+    .vetted-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #15803D; color: #fff;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+      text-transform: uppercase; padding: 2px 8px;
+      border-radius: 99px;
+    }
 
     .result-name {
       font-family: 'Lora', Georgia, serif;
@@ -911,7 +919,11 @@ function renderResult(record, isActive, expDisplay) {
     ? '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M4 11l5 5 9-10" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
     : '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M6 6l10 10M16 6L6 16" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>';
 
-  statusEl.textContent = isActive ? 'Active TDLR License' : 'License Expired or Not Active';
+  var isNetworkContractor = !!LICENSE_TO_CONTRACTOR[record.license_number];
+  var vettedBadge = (isActive && isNetworkContractor)
+    ? '<span class="vetted-badge">&#10003; Vetted network contractor</span>'
+    : '';
+  statusEl.innerHTML = (isActive ? 'Active TDLR License' : 'License Expired or Not Active') + vettedBadge;
 
   var businessName = record.business_name || '';
   var ownerName    = record.owner_name || '';
