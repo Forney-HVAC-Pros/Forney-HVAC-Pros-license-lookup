@@ -422,6 +422,42 @@
     }
     .btn-quote:hover { background: #EFF6FF; }
 
+    /* ---- Contact lookup ---- */
+    .action-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .contact-lookup-btn { border-color: var(--blue); color: var(--blue); }
+    .contact-lookup-btn:hover { border-color: var(--blue); background: #EFF6FF; }
+    .contact-info-wrap {
+      display: flex; align-items: center; flex-wrap: wrap;
+      gap: 10px; padding: 12px 16px; margin: 8px 0 0;
+      background: var(--white); border: 1.5px solid var(--border);
+      border-radius: 4px;
+    }
+    .contact-info-label { font-size: 12px; color: var(--mid); font-weight: 600; white-space: nowrap; }
+    .contact-loading { display: flex; align-items: center; gap: 8px; }
+    .contact-loading span { font-size: 13px; color: var(--mid); }
+    .spinner-sm {
+      width: 18px; height: 18px;
+      border: 2px solid var(--border); border-top-color: var(--blue);
+      border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;
+    }
+    .btn-contact-call {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; background: var(--orange); color: var(--white);
+      border-radius: 4px; font-size: 13px; font-weight: 600;
+      text-decoration: none; font-family: 'Inter', sans-serif;
+      transition: background 0.15s; white-space: nowrap;
+    }
+    .btn-contact-call:hover { background: #7A3D07; }
+    .btn-contact-web {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; background: var(--white); color: var(--blue);
+      border: 1.5px solid var(--blue); border-radius: 4px;
+      font-size: 13px; font-weight: 600; text-decoration: none;
+      font-family: 'Inter', sans-serif; transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .btn-contact-web:hover { background: #EFF6FF; }
+
     /* ---- Utils ---- */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(8px); }
@@ -497,6 +533,9 @@
         <div id="result-actions"></div>
       </div>
     </div>
+
+    <!-- Contact Info Strip (populated by Places lookup) -->
+    <div id="contact-info-strip"></div>
 
     <!-- Network Card -->
     <div class="card" id="network-card">
@@ -654,6 +693,8 @@ var searchMode = 'number';
 var activeFilter = 'all';
 var networkVisible = false;
 var lastResultType = 'active';
+var lastSearchedName = '';
+var lastSearchedCounty = '';
 
 // ============================================================
 // SEARCH MODE TOGGLE
@@ -805,12 +846,21 @@ function renderResult(record, isActive, expDisplay) {
   var networkHeading = document.getElementById('network-heading');
   var networkSub     = document.getElementById('network-sub');
 
+  lastSearchedName = displayName;
+  lastSearchedCounty = countyRaw;
+  document.getElementById('contact-info-strip').innerHTML = '';
+
   if (isActive) {
     actionsEl.innerHTML =
-      '<button class="network-toggle-btn" onclick="toggleNetwork()">' +
-        '<svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
-        '<span id="network-toggle-label">Compare with our vetted local network</span>' +
-      '</button>';
+      '<div class="action-row">' +
+        '<button class="network-toggle-btn contact-lookup-btn" id="contact-lookup-btn" onclick="lookupContactInfo()">' +
+          'Find Phone &amp; Website' +
+        '</button>' +
+        '<button class="network-toggle-btn" onclick="toggleNetwork()">' +
+          '<svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+          '<span id="network-toggle-label">Compare with our vetted local network</span>' +
+        '</button>' +
+      '</div>';
     networkCard.classList.add('hidden');
     networkLabel.className = 'network-label secondary';
     networkLabel.textContent = 'Our Vetted Network';
@@ -850,6 +900,7 @@ function showNotFound(msg) {
   metaEl.innerHTML = '<span class="meta-item" style="color:var(--red);">The license may be expired, invalid, or not categorized as an A/C contractor or technician.</span>';
   actionsEl.innerHTML = '';
 
+  document.getElementById('contact-info-strip').innerHTML = '';
   var networkCard = document.getElementById('network-card');
   networkCard.classList.remove('hidden');
   document.getElementById('network-label').className   = 'network-label primary';
@@ -881,6 +932,80 @@ function toggleNetwork() {
     networkCard.classList.add('hidden');
     label.textContent = 'Compare with our vetted local network';
   }
+  setTimeout(sendHeight, 150);
+}
+
+// ============================================================
+// CONTACT LOOKUP
+// ============================================================
+function lookupContactInfo() {
+  var strip = document.getElementById('contact-info-strip');
+  var btn   = document.getElementById('contact-lookup-btn');
+  if (btn) btn.style.display = 'none';
+
+  strip.innerHTML =
+    '<div class="contact-info-wrap">' +
+      '<div class="contact-loading">' +
+        '<div class="spinner-sm"></div>' +
+        '<span>Looking up contact info&#8230;</span>' +
+      '</div>' +
+    '</div>';
+  setTimeout(sendHeight, 100);
+  track('contact_lookup_clicked', { business: lastSearchedName });
+
+  var county = lastSearchedCounty
+    ? lastSearchedCounty.charAt(0) + lastSearchedCounty.slice(1).toLowerCase() + ' County TX'
+    : 'Forney TX';
+  var query = lastSearchedName + ' ' + county + ' HVAC contractor';
+  var url = 'https://api.duckduckgo.com/?q=' + encodeURIComponent(query) +
+    '&format=json&no_html=1&skip_disambig=1';
+
+  fetch(url)
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      var phone   = data.Phone || '';
+      var website = data.AbstractURL || '';
+      if (!phone && !website) {
+        showContactFallback(strip);
+      } else {
+        renderContactInfo({ phone: phone, website: website }, strip);
+      }
+    })
+    .catch(function() { showContactFallback(strip); });
+}
+
+function renderContactInfo(place, strip) {
+  var phone   = place.phone || '';
+  var website = place.website || '';
+  var html = '<div class="contact-info-wrap"><span class="contact-info-label">Contact info:</span>';
+  if (phone) {
+    var phoneHref = 'tel:' + phone.replace(/\D/g, '');
+    html += '<a href="' + phoneHref + '" class="btn-contact-call" target="_blank" rel="noopener" ' +
+      'onclick="track(\'contact_call_clicked\',{source:\'places\',business:\'' + lastSearchedName.replace(/'/g, '') + '\'})">' +
+      '&#9742;&nbsp;' + phone + '</a>';
+  }
+  if (website) {
+    var domain = website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/.*$/, '');
+    html += '<a href="' + website + '" class="btn-contact-web" target="_blank" rel="noopener" ' +
+      'onclick="track(\'contact_website_clicked\',{source:\'places\'})">' +
+      domain + ' &rarr;</a>';
+  }
+  html += '</div>';
+  strip.innerHTML = html;
+  track('contact_info_found', { has_phone: phone ? 1 : 0, has_website: website ? 1 : 0 });
+  setTimeout(sendHeight, 150);
+}
+
+function showContactFallback(strip) {
+  var q = encodeURIComponent((lastSearchedName || 'HVAC contractor') + ' Forney TX phone number');
+  strip.innerHTML =
+    '<div class="contact-info-wrap">' +
+      '<span class="contact-info-label">Contact info:</span>' +
+      '<a href="https://www.google.com/search?q=' + q + '" class="btn-contact-web" target="_blank" rel="noopener" ' +
+        'onclick="track(\'contact_search_fallback\',{})">' +
+        'Search Google &rarr;' +
+      '</a>' +
+    '</div>';
   setTimeout(sendHeight, 150);
 }
 
