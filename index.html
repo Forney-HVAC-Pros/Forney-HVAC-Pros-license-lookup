@@ -422,6 +422,23 @@
     }
     .btn-quote:hover { background: #EFF6FF; }
 
+    /* ---- Result trust row ---- */
+    .result-trust-row {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      margin: 10px 0 2px;
+    }
+    .result-trust-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,0.6); border: 1px solid rgba(134,239,172,0.7);
+      border-radius: 99px; padding: 3px 10px 3px 6px;
+      font-size: 12px; font-weight: 600; color: #166534;
+      line-height: 1.4;
+    }
+    .result-trust-chip-icon {
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
     /* ---- Contact lookup ---- */
     .action-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
     .contact-lookup-btn { border-color: var(--blue); color: var(--blue); }
@@ -534,6 +551,7 @@
         <div class="result-status" id="result-status-text"></div>
         <div class="result-name" id="result-name"></div>
         <div class="result-meta" id="result-meta"></div>
+        <div id="result-trust"></div>
         <div id="result-actions"></div>
       </div>
     </div>
@@ -635,6 +653,7 @@ var CONTRACTORS = {
     reviewCount: '25+',
     since: '1965',
     badge: 'Est. 1965',
+    trust: ['google5', 'chamber', 'est1965'],
     strengths: [
       'Emergency service available same-day',
       'Serving Forney since 1965 &#8212; 58+ years local',
@@ -651,6 +670,7 @@ var CONTRACTORS = {
     reviewCount: '75',
     since: '1997',
     badge: '10-Yr Warranty',
+    trust: ['google49', 'veteran', 'warranty10'],
     strengths: [
       '10-year parts &amp; labor warranty &#8212; best in area',
       'Flat-rate pricing &#8212; no surprise charges',
@@ -667,6 +687,7 @@ var CONTRACTORS = {
     reviewCount: '270+',
     since: '2017',
     badge: 'BBB A+',
+    trust: ['google49b', 'bbb'],
     strengths: [
       '0% financing on new system installs',
       'BBB A+ accredited &#8212; 270+ verified reviews',
@@ -683,6 +704,7 @@ var CONTRACTORS = {
     reviewCount: '1,500+',
     since: '2016',
     badge: 'Nextdoor Fav',
+    trust: ['google48', 'nextdoor'],
     strengths: [
       'Available 7am&#8211;7pm, 7 days a week',
       '1,500+ verified Google reviews',
@@ -690,6 +712,29 @@ var CONTRACTORS = {
     ]
   }
 };
+
+var LICENSE_TO_CONTRACTOR = {};
+Object.keys(CONTRACTORS).forEach(function(id) {
+  var c = CONTRACTORS[id];
+  if (c.license) LICENSE_TO_CONTRACTOR[c.license] = c;
+});
+
+var TRUST_SIGNALS = {
+  google5:   { icon: googleSVG(), label: '5.0 ★ (25+ Google reviews)' },
+  google49:  { icon: googleSVG(), label: '4.9 ★ (75 Google reviews)' },
+  google49b: { icon: googleSVG(), label: '4.9 ★ (270+ Google reviews)' },
+  google48:  { icon: googleSVG(), label: '4.8 ★ (1,500+ Google reviews)' },
+  bbb:       { icon: '<span style="background:#CC0000;color:#fff;font-size:8px;font-weight:800;padding:2px 4px;border-radius:3px;line-height:1;">BBB</span>', label: 'BBB A+ Accredited' },
+  veteran:   { icon: '\u{1F396}', label: 'Veteran-owned' },
+  warranty10:{ icon: '✔', label: '10-yr parts &amp; labor warranty' },
+  chamber:   { icon: '★', label: 'Forney Chamber Award 2025' },
+  est1965:   { icon: '\u{1F3E0}', label: 'Est. 1965 &mdash; 58+ yrs local' },
+  nextdoor:  { icon: '<span style="background:#00B140;color:#fff;font-size:9px;font-weight:800;padding:2px 5px;border-radius:3px;line-height:1;">ND</span>', label: 'Nextdoor Neighborhood Favorite' }
+};
+
+function googleSVG() {
+  return '<svg width="14" height="14" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.707A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.039l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.961L3.964 6.293C4.672 4.166 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>';
+}
 
 var FILTER_ORDER = {
   all:        ['jandr', 'williams', 'bolton', 'infinity'],
@@ -872,6 +917,24 @@ function renderResult(record, isActive, expDisplay) {
   lastSearchedCounty = countyRaw;
   lastSearchedLicense = record.license_number || '';
   document.getElementById('contact-info-strip').innerHTML = '';
+
+  var trustEl = document.getElementById('result-trust');
+  var networkContractor = LICENSE_TO_CONTRACTOR[record.license_number];
+  if (networkContractor && networkContractor.trust) {
+    var trustHtml = '<div class="result-trust-row">';
+    networkContractor.trust.forEach(function(key) {
+      var sig = TRUST_SIGNALS[key];
+      if (sig) {
+        trustHtml += '<span class="result-trust-chip">' +
+          '<span class="result-trust-chip-icon">' + sig.icon + '</span>' +
+          sig.label + '</span>';
+      }
+    });
+    trustHtml += '</div>';
+    trustEl.innerHTML = trustHtml;
+  } else {
+    trustEl.innerHTML = '';
+  }
 
   var inServiceArea = SERVICE_AREA_COUNTIES[countyRaw.toUpperCase()] || KNOWN_CONTACTS[record.license_number];
 
