@@ -975,10 +975,14 @@ function showMultiple(records) {
     var bizName   = record.business_name || record.owner_name || 'Unknown';
     var ownerMeta = record.business_name && record.owner_name ? ' &bull; ' + record.owner_name : '';
     var exp = record.license_expiration_date_mmddccyy || '&mdash;';
+    var county = record.business_county
+      ? record.business_county.charAt(0) + record.business_county.slice(1).toLowerCase() + ' County'
+      : '';
     li.innerHTML =
       '<div class="result-row-name">' + bizName + '</div>' +
       '<div class="result-row-meta">License #' + (record.license_number || '?') +
         ' &bull; ' + (record.license_type || 'Unknown type') +
+        (county ? ' &bull; ' + county : '') +
         ' &bull; Exp: ' + exp + ownerMeta + '</div>';
     list.appendChild(li);
   });
