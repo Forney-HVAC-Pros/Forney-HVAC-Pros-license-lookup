@@ -901,7 +901,7 @@ function renderResult(record, isActive, expDisplay) {
     } else if (inServiceArea) {
       contactHtml = '<button class="network-toggle-btn contact-lookup-btn" id="contact-lookup-btn" onclick="lookupContactInfo()">Find Phone &amp; Website</button>';
     }
-    var networkBtn = (inServiceArea && !known)
+    var networkBtn = inServiceArea
       ? '<button class="network-toggle-btn" onclick="toggleNetwork()">' +
           '<svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
           '<span id="network-toggle-label">Compare with our vetted local network</span>' +
