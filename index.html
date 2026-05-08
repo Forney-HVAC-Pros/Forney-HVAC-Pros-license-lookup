@@ -868,17 +868,31 @@ function renderResult(record, isActive, expDisplay) {
   var inServiceArea = SERVICE_AREA_COUNTIES[countyRaw.toUpperCase()] || KNOWN_CONTACTS[record.license_number];
 
   if (isActive) {
-    var contactBtn = inServiceArea
-      ? '<button class="network-toggle-btn contact-lookup-btn" id="contact-lookup-btn" onclick="lookupContactInfo()">Find Phone &amp; Website</button>'
-      : '';
+    var known = KNOWN_CONTACTS[record.license_number];
+    var contactHtml = '';
+    if (known && (known.phone || known.website)) {
+      if (known.phone) {
+        contactHtml += '<a href="' + known.phoneHref + '" class="btn-contact-call" target="_blank" rel="noopener" ' +
+          'onclick="track(\'contact_call_clicked\',{source:\'known\',business:\'' + displayName.replace(/'/g, '') + '\'})">' +
+          '&#9742;&nbsp;' + known.phone + '</a>';
+      }
+      if (known.website) {
+        var domain = known.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/.*$/, '');
+        contactHtml += '<a href="' + known.website + '" class="btn-contact-web" target="_blank" rel="noopener" ' +
+          'onclick="track(\'contact_website_clicked\',{source:\'known\',business:\'' + displayName.replace(/'/g, '') + '\'})">' +
+          domain + ' &rarr;</a>';
+      }
+    } else if (inServiceArea) {
+      contactHtml = '<button class="network-toggle-btn contact-lookup-btn" id="contact-lookup-btn" onclick="lookupContactInfo()">Find Phone &amp; Website</button>';
+    }
     var networkBtn = inServiceArea
       ? '<button class="network-toggle-btn" onclick="toggleNetwork()">' +
           '<svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
           '<span id="network-toggle-label">Compare with our vetted local network</span>' +
         '</button>'
       : '';
-    actionsEl.innerHTML = (contactBtn || networkBtn)
-      ? '<div class="action-row">' + contactBtn + networkBtn + '</div>'
+    actionsEl.innerHTML = (contactHtml || networkBtn)
+      ? '<div class="action-row">' + contactHtml + networkBtn + '</div>'
       : '';
     networkCard.classList.add('hidden');
     networkLabel.className = 'network-label secondary';
