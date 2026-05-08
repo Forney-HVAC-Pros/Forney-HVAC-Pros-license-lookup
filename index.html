@@ -957,14 +957,21 @@ function lookupContactInfo() {
 
   if (!CSE_KEY || !CSE_ID) { showContactFallback(strip); return; }
 
-  var county = lastSearchedCounty
+  // Clean name for search: lowercase, strip legal suffixes and special chars
+  var cleanName = lastSearchedName
+    .toLowerCase()
+    .replace(/\b(llc|inc|corp|ltd|co\.?)\b/gi, '')
+    .replace(/[&,\.]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  var location = lastSearchedCounty
     ? lastSearchedCounty.charAt(0) + lastSearchedCounty.slice(1).toLowerCase() + ' County TX'
     : 'Forney TX';
-  var query = lastSearchedName + ' ' + county;
+  var query = cleanName + ' ' + location;
   var url = 'https://www.googleapis.com/customsearch/v1' +
     '?key=' + CSE_KEY +
     '&cx='  + CSE_ID  +
-    '&num=3' +
+    '&num=5' +
     '&q='   + encodeURIComponent(query);
 
   fetch(url)
@@ -978,29 +985,37 @@ function lookupContactInfo() {
         var item = items[i];
         var pm = item.pagemap || {};
 
-        // Structured data: LocalBusiness schema on their site
+        // LocalBusiness structured data
         var lb = pm.localbusiness && pm.localbusiness[0];
         if (lb) {
           phone   = phone   || lb.telephone || lb.phone || '';
           website = website || lb.url || '';
         }
 
-        // Meta tags (og:phone_number, contact info)
+        // metatags
         var meta = pm.metatags && pm.metatags[0];
         if (meta) {
           phone   = phone   || meta['og:phone_number'] || meta['business:contact_data:phone_number'] || '';
           website = website || meta['og:url'] || '';
         }
 
-        // Regex parse phone from snippet as last resort
+        // Parse phone from title or snippet — covers YP/BBB format "(972) 123-4567"
+        var text = (item.title || '') + ' ' + (item.snippet || '');
         if (!phone) {
-          var m = (item.snippet || '').match(/\(?\d{3}\)?[\s.\-]\d{3}[\s.\-]\d{4}/);
-          if (m) phone = m[0];
+          var m = text.match(/\(?\d{3}\)?[\s.–\-]\d{3}[\s.\-]\d{4}/);
+          if (m) phone = m[0].trim();
         }
 
-        website = website || item.link || '';
-        if (phone || website) break;
+        // Use listing page link as website only if it looks like a business site
+        var link = item.link || '';
+        var isDirectory = /yelp\.com|yellowpages\.com|bbb\.org|angi\.com|thumbtack\.com/.test(link);
+        if (!website && !isDirectory) website = link;
+
+        if (phone) break;
       }
+
+      // If no direct website found, use first result link as last resort
+      if (!website && items.length) website = items[0].link || '';
 
       if (!phone && !website) {
         showContactFallback(strip);
