@@ -602,9 +602,17 @@
 // CONFIG
 // ============================================================
 var SOCRATA_URL = 'https://data.texas.gov/resource/7358-krk7.json';
-var CSE_KEY = 'AIzaSyCCa2duYOQCsRvq8Wfl-b4aJuR6l6S7BRQ';
+var CSE_KEY = 'AIzaSyBU1E-vqpVs2dsUCM58WoTm99bycnvEsdI';
 var CSE_ID  = 'c3579593f49cf4a38';
 var AC_TYPES = ['A/C Contractor', 'A/C Technician', 'A/C CE Provider'];
+
+// Pre-populated contact info for known local contractors (keyed by TDLR license number)
+var KNOWN_CONTACTS = {
+  '136429': { phone: '(214) 391-1600', phoneHref: 'tel:2143911600', website: '' },  // J&R
+  '27686':  { phone: '(214) 676-5909', phoneHref: 'tel:2146765909', website: '' },  // Williams
+  '26771':  { phone: '(972) 465-9788', phoneHref: 'tel:9724659788', website: '' },  // Infinity
+  '81826':  { phone: null,             phoneHref: null,             website: '' }   // Bolton (no phone on file)
+};
 
 // ============================================================
 // CONTRACTOR DATA
@@ -697,6 +705,7 @@ var networkVisible = false;
 var lastResultType = 'active';
 var lastSearchedName = '';
 var lastSearchedCounty = '';
+var lastSearchedLicense = '';
 
 // ============================================================
 // SEARCH MODE TOGGLE
@@ -850,6 +859,7 @@ function renderResult(record, isActive, expDisplay) {
 
   lastSearchedName = displayName;
   lastSearchedCounty = countyRaw;
+  lastSearchedLicense = record.license_number || '';
   document.getElementById('contact-info-strip').innerHTML = '';
 
   if (isActive) {
@@ -955,6 +965,17 @@ function lookupContactInfo() {
   setTimeout(sendHeight, 100);
   track('contact_lookup_clicked', { business: lastSearchedName });
 
+  // Check known contacts first — no API needed
+  var known = KNOWN_CONTACTS[lastSearchedLicense];
+  if (known) {
+    if (known.phone || known.website) {
+      renderContactInfo({ phone: known.phone || '', phoneHref: known.phoneHref || '', website: known.website }, strip);
+    } else {
+      showContactFallback(strip);
+    }
+    return;
+  }
+
   if (!CSE_KEY || !CSE_ID) { showContactFallback(strip); return; }
 
   // Clean name for search: lowercase, strip legal suffixes and special chars
@@ -1031,7 +1052,7 @@ function renderContactInfo(place, strip) {
   var website = place.website || '';
   var html = '<div class="contact-info-wrap"><span class="contact-info-label">Contact info:</span>';
   if (phone) {
-    var phoneHref = 'tel:' + phone.replace(/\D/g, '');
+    var phoneHref = place.phoneHref || ('tel:' + phone.replace(/\D/g, ''));
     html += '<a href="' + phoneHref + '" class="btn-contact-call" target="_blank" rel="noopener" ' +
       'onclick="track(\'contact_call_clicked\',{source:\'places\',business:\'' + lastSearchedName.replace(/'/g, '') + '\'})">' +
       '&#9742;&nbsp;' + phone + '</a>';
