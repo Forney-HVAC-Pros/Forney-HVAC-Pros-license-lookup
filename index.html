@@ -1061,7 +1061,7 @@ function lookupContactInfo() {
 function renderContactInfo(place, strip) {
   var phone   = place.phone || '';
   var website = place.website || '';
-  var html = '<div class="contact-info-wrap"><span class="contact-info-label">Contact info:</span>';
+  var html = '<div class="contact-info-wrap"><span class="contact-info-label">License verified &#8212; give them a call:</span>';
   if (phone) {
     var phoneHref = place.phoneHref || ('tel:' + phone.replace(/\D/g, ''));
     html += '<a href="' + phoneHref + '" class="btn-contact-call" target="_blank" rel="noopener" ' +
@@ -1084,7 +1084,7 @@ function showContactFallback(strip) {
   var q = encodeURIComponent((lastSearchedName || 'HVAC contractor') + ' Forney TX phone number');
   strip.innerHTML =
     '<div class="contact-info-wrap">' +
-      '<span class="contact-info-label">Contact info:</span>' +
+      '<span class="contact-info-label">License verified &#8212; give them a call:</span>' +
       '<a href="https://www.google.com/search?q=' + q + '" class="btn-contact-web" target="_blank" rel="noopener" ' +
         'onclick="track(\'contact_search_fallback\',{})">' +
         'Search Google &rarr;' +
