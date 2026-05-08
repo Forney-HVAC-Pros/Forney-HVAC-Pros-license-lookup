@@ -775,11 +775,17 @@ function renderResult(record, isActive, expDisplay) {
 
   statusEl.textContent = isActive ? 'Active TDLR License' : 'License Expired or Not Active';
 
-  var displayName = record.owner_name || record.business_name || 'Unknown';
+  var businessName = record.business_name || '';
+  var ownerName    = record.owner_name || '';
+  var displayName  = businessName || ownerName || 'Unknown';
   nameEl.textContent = displayName;
 
   var subtype = record.license_subtype ? ' (' + record.license_subtype + ')' : '';
+  var ownerLine = (businessName && ownerName)
+    ? '<span class="meta-item"><strong>License holder</strong> ' + ownerName + '</span>'
+    : '';
   metaEl.innerHTML =
+    ownerLine +
     '<span class="meta-item"><strong>License #</strong> ' + (record.license_number || '&mdash;') + '</span>' +
     '<span class="meta-item"><strong>Type</strong> ' + (record.license_type || '&mdash;') + subtype + '</span>' +
     '<span class="meta-item"><strong>Expires</strong> ' + expDisplay + '</span>';
