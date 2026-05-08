@@ -700,7 +700,7 @@ function doSearch() {
     var pattern = buildNamePattern(raw);
     if (!pattern) { showNotFound('Please enter at least two characters to search.'); return; }
     url = SOCRATA_URL + '?$where=' + encodeURIComponent(
-      "upper(business_name) like '" + pattern + "' OR upper(owner_name) like '" + pattern + "'"
+      "upper(business_name) like '" + pattern + "'"
     ) + '&$limit=15';
   }
 
@@ -972,13 +972,14 @@ function showMultiple(records) {
     var li = document.createElement('li');
     li.className = 'result-row';
     li.onclick = function() { showSingleResult(record); };
-    var name = record.owner_name || record.business_name || 'Unknown';
-    var exp  = record.license_expiration_date_mmddccyy || '&mdash;';
+    var bizName   = record.business_name || record.owner_name || 'Unknown';
+    var ownerMeta = record.business_name && record.owner_name ? ' &bull; ' + record.owner_name : '';
+    var exp = record.license_expiration_date_mmddccyy || '&mdash;';
     li.innerHTML =
-      '<div class="result-row-name">' + name + '</div>' +
+      '<div class="result-row-name">' + bizName + '</div>' +
       '<div class="result-row-meta">License #' + (record.license_number || '?') +
         ' &bull; ' + (record.license_type || 'Unknown type') +
-        ' &bull; Exp: ' + exp + '</div>';
+        ' &bull; Exp: ' + exp + ownerMeta + '</div>';
     list.appendChild(li);
   });
 
