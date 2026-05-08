@@ -289,8 +289,17 @@
       cursor: pointer; transition: all 0.15s;
     }
     .result-row:hover { border-color: var(--blue); background: #EFF6FF; }
+    .result-row--network {
+      border: 2px solid #16A34A; background: #F0FDF4;
+    }
+    .result-row--network:hover { border-color: #15803D; background: #DCFCE7; }
     .result-row-name { font-size: 14px; font-weight: 600; color: var(--dark); }
     .result-row-meta { font-size: 12px; color: var(--mid); margin-top: 2px; }
+    .result-row-network-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 700; color: #15803D;
+      margin-bottom: 4px;
+    }
 
     /* ---- Network section ---- */
     .network-label {
@@ -1283,7 +1292,8 @@ function showMultiple(records) {
   list.innerHTML = '';
   acFirst.slice(0, 8).forEach(function(record) {
     var li = document.createElement('li');
-    li.className = 'result-row';
+    var isNetwork = !!KNOWN_CONTACTS[record.license_number];
+    li.className = 'result-row' + (isNetwork ? ' result-row--network' : '');
     li.onclick = function() { showSingleResult(record); };
     var bizName   = record.business_name || record.owner_name || 'Unknown';
     var ownerMeta = record.business_name && record.owner_name ? ' &bull; ' + record.owner_name : '';
@@ -1291,7 +1301,14 @@ function showMultiple(records) {
     var county = record.business_county
       ? record.business_county.charAt(0) + record.business_county.slice(1).toLowerCase() + ' County'
       : '';
+    var networkBadge = isNetwork
+      ? '<div class="result-row-network-badge">' +
+          '<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="8" fill="#16A34A"/><path d="M4.5 8.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+          'Vetted local network' +
+        '</div>'
+      : '';
     li.innerHTML =
+      networkBadge +
       '<div class="result-row-name">' + bizName + '</div>' +
       '<div class="result-row-meta">License #' + (record.license_number || '?') +
         ' &bull; ' + (record.license_type || 'Unknown type') +
