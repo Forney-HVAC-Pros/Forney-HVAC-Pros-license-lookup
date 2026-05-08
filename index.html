@@ -653,7 +653,7 @@ var CONTRACTORS = {
     reviewCount: '25+',
     since: '1965',
     badge: 'Est. 1965',
-    trust: ['google5', 'chamber', 'est1965'],
+    trust: ['google5', 'chamber', 'est1965', 'womanowned'],
     strengths: [
       'Emergency service available same-day',
       'Serving Forney since 1965 &#8212; 58+ years local',
@@ -683,11 +683,11 @@ var CONTRACTORS = {
     name: 'Bolton Heating &amp; Air',
     phone: null,
     phoneHref: null,
-    rating: 4.9,
+    rating: 5.0,
     reviewCount: '270+',
     since: '2017',
     badge: 'BBB A+',
-    trust: ['google49b', 'bbb'],
+    trust: ['google50b', 'bbb'],
     strengths: [
       '0% financing on new system installs',
       'BBB A+ accredited &#8212; 270+ verified reviews',
@@ -700,11 +700,11 @@ var CONTRACTORS = {
     name: 'Infinity Texas Air',
     phone: '(972) 465-9788',
     phoneHref: 'tel:9724659788',
-    rating: 4.8,
+    rating: 4.9,
     reviewCount: '1,500+',
-    since: '2016',
+    since: '2010',
     badge: 'Nextdoor Fav',
-    trust: ['google48', 'nextdoor'],
+    trust: ['google49c', 'nextdoor'],
     strengths: [
       'Available 7am&#8211;7pm, 7 days a week',
       '1,500+ verified Google reviews',
@@ -722,13 +722,14 @@ Object.keys(CONTRACTORS).forEach(function(id) {
 var TRUST_SIGNALS = {
   google5:   { icon: googleSVG(), label: '5.0 ★ (25+ Google reviews)' },
   google49:  { icon: googleSVG(), label: '4.9 ★ (75 Google reviews)' },
-  google49b: { icon: googleSVG(), label: '4.9 ★ (270+ Google reviews)' },
-  google48:  { icon: googleSVG(), label: '4.8 ★ (1,500+ Google reviews)' },
+  google49c: { icon: googleSVG(), label: '4.9 ★ (1,500+ Google reviews)' },
+  google50b: { icon: googleSVG(), label: '5.0 ★ (270+ Google reviews)' },
   bbb:       { icon: '<span style="background:#CC0000;color:#fff;font-size:8px;font-weight:800;padding:2px 4px;border-radius:3px;line-height:1;">BBB</span>', label: 'BBB A+ Accredited' },
-  veteran:   { icon: '\u{1F396}', label: 'Veteran-owned' },
-  warranty10:{ icon: '✔', label: '10-yr parts &amp; labor warranty' },
-  chamber:   { icon: '★', label: 'Forney Chamber Award 2025' },
-  est1965:   { icon: '\u{1F3E0}', label: 'Est. 1965 &mdash; 58+ yrs local' },
+  veteran:   { icon: '&#9965;', label: 'Veteran-owned' },
+  womanowned:{ icon: '&#10003;', label: 'Woman &amp; minority-owned' },
+  warranty10:{ icon: '&#10003;', label: '10-yr parts &amp; labor warranty' },
+  chamber:   { icon: '&#9733;', label: 'Forney Chamber Award 2025' },
+  est1965:   { icon: '&#10003;', label: 'Est. 1965 &mdash; 58+ yrs local' },
   nextdoor:  { icon: '<span style="background:#00B140;color:#fff;font-size:9px;font-weight:800;padding:2px 5px;border-radius:3px;line-height:1;">ND</span>', label: 'Nextdoor Neighborhood Favorite' }
 };
 
