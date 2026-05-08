@@ -722,14 +722,18 @@ function doSearch() {
 }
 
 function buildNamePattern(raw) {
+  var STOP = { AND: 1, OR: 1, THE: 1, OF: 1, LLC: 1, INC: 1, CO: 1, DBA: 1, AIR: 1 };
   var clean = raw
-    .replace(/[&'"%_]/g, ' ')
+    .replace(/[&'"%_,\.]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .toUpperCase();
-  var words = clean.split(' ').filter(function(w) { return w.length >= 2; });
+  var words = clean.split(' ').filter(function(w) {
+    return w.length >= 1 && !STOP[w];
+  });
   if (!words.length) return null;
-  return '%' + words.join('%') + '%';
+  var prefixes = words.map(function(w) { return w.substring(0, 5); });
+  return '%' + prefixes.join('%') + '%';
 }
 
 function showSingleResult(record) {
