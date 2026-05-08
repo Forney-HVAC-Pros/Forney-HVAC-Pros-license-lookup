@@ -871,14 +871,15 @@ function renderResult(record, isActive, expDisplay) {
     var contactBtn = inServiceArea
       ? '<button class="network-toggle-btn contact-lookup-btn" id="contact-lookup-btn" onclick="lookupContactInfo()">Find Phone &amp; Website</button>'
       : '';
-    actionsEl.innerHTML =
-      '<div class="action-row">' +
-        contactBtn +
-        '<button class="network-toggle-btn" onclick="toggleNetwork()">' +
+    var networkBtn = inServiceArea
+      ? '<button class="network-toggle-btn" onclick="toggleNetwork()">' +
           '<svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
           '<span id="network-toggle-label">Compare with our vetted local network</span>' +
-        '</button>' +
-      '</div>';
+        '</button>'
+      : '';
+    actionsEl.innerHTML = (contactBtn || networkBtn)
+      ? '<div class="action-row">' + contactBtn + networkBtn + '</div>'
+      : '';
     networkCard.classList.add('hidden');
     networkLabel.className = 'network-label secondary';
     networkLabel.textContent = 'Our Vetted Network';
@@ -886,11 +887,15 @@ function renderResult(record, isActive, expDisplay) {
     networkSub.textContent = 'All four contractors below hold active TDLR licenses, are 4.8+ stars on Google, and are locally based in Forney and Kaufman County.';
   } else {
     actionsEl.innerHTML = '';
-    networkCard.classList.remove('hidden');
-    networkLabel.className = 'network-label primary';
-    networkLabel.textContent = 'Find a Verified Contractor Instead';
-    networkHeading.textContent = 'Our pre-vetted local network is ready to help';
-    networkSub.textContent = 'Every contractor below holds an active TDLR license, has a minimum 4.8-star Google rating, and is locally based in Forney and Kaufman County. Free to homeowners &#8212; always.';
+    if (inServiceArea) {
+      networkCard.classList.remove('hidden');
+      networkLabel.className = 'network-label primary';
+      networkLabel.textContent = 'Find a Verified Contractor Instead';
+      networkHeading.textContent = 'Our pre-vetted local network is ready to help';
+      networkSub.textContent = 'Every contractor below holds an active TDLR license, has a minimum 4.8-star Google rating, and is locally based in Forney and Kaufman County. Free to homeowners &#8212; always.';
+    } else {
+      networkCard.classList.add('hidden');
+    }
   }
 
   applyFilter('all');
