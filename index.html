@@ -454,6 +454,17 @@
     }
     .btn-quote:hover { background: #EFF6FF; }
 
+    /* ---- Back to list ---- */
+    .back-to-list {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-bottom: 10px; padding: 7px 14px;
+      background: none; border: 1.5px solid var(--border);
+      border-radius: 4px; font-size: 13px; font-weight: 600;
+      color: var(--mid); cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: all 0.15s;
+    }
+    .back-to-list:hover { border-color: var(--dark); color: var(--dark); }
+
     /* ---- Result trust row ---- */
     .result-trust-row {
       display: flex; flex-wrap: wrap; gap: 8px;
@@ -575,6 +586,8 @@
 
   <!-- Result state -->
   <div class="hidden animate-in" id="state-result">
+
+    <button id="back-to-list" class="back-to-list hidden" onclick="showState('multiple')">&#8592; Back to results</button>
 
     <!-- Banner -->
     <div class="result-banner" id="result-banner">
@@ -882,7 +895,11 @@ function buildNamePattern(raw) {
   return '%' + prefixes.join('%') + '%';
 }
 
-function showSingleResult(record) {
+function showSingleResult(record, fromList) {
+  var backBtn = document.getElementById('back-to-list');
+  if (backBtn) {
+    fromList ? backBtn.classList.remove('hidden') : backBtn.classList.add('hidden');
+  }
   var today = new Date();
   var isActive = false;
   var expDisplay = 'Unknown';
@@ -1325,7 +1342,7 @@ function showMultiple(records) {
     var li = document.createElement('li');
     var isNetwork = !!KNOWN_CONTACTS[record.license_number];
     li.className = 'result-row' + (isNetwork ? ' result-row--network' : '');
-    li.onclick = function() { showSingleResult(record); };
+    li.onclick = function() { showSingleResult(record, true); };
     var bizName   = record.business_name || record.owner_name || 'Unknown';
     var ownerMeta = record.business_name && record.owner_name ? ' &bull; ' + record.owner_name : '';
     var exp = record.license_expiration_date_mmddccyy || '&mdash;';
