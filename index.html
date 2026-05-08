@@ -627,6 +627,7 @@ var KNOWN_CONTACTS = {
 var CONTRACTORS = {
   jandr: {
     id: 'jandr',
+    license: '136429',
     name: 'J&amp;R Plumbing, Heating and Air',
     phone: '(214) 391-1600',
     phoneHref: 'tel:2143911600',
@@ -642,6 +643,7 @@ var CONTRACTORS = {
   },
   williams: {
     id: 'williams',
+    license: '27686',
     name: 'Williams Services AC &amp; Heating',
     phone: '(214) 676-5909',
     phoneHref: 'tel:2146765909',
@@ -657,6 +659,7 @@ var CONTRACTORS = {
   },
   bolton: {
     id: 'bolton',
+    license: '81826',
     name: 'Bolton Heating &amp; Air',
     phone: null,
     phoneHref: null,
@@ -672,6 +675,7 @@ var CONTRACTORS = {
   },
   infinity: {
     id: 'infinity',
+    license: '26771',
     name: 'Infinity Texas Air',
     phone: '(972) 465-9788',
     phoneHref: 'tel:9724659788',
@@ -1128,7 +1132,9 @@ function applyFilter(filter) {
     p.className = 'filter-pill' + (p.dataset.filter === filter ? ' active' : '');
   });
 
-  var ids = FILTER_ORDER[filter] || FILTER_ORDER.all;
+  var ids = (FILTER_ORDER[filter] || FILTER_ORDER.all).filter(function(id) {
+    return !CONTRACTORS[id] || CONTRACTORS[id].license !== lastSearchedLicense;
+  });
   var list = document.getElementById('contractor-list');
   list.innerHTML = '';
   ids.forEach(function(id, idx) {
