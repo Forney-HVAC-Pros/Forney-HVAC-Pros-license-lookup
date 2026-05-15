@@ -518,6 +518,19 @@
     }
     .btn-contact-web:hover { background: #EFF6FF; }
 
+    /* ---- Result timestamp ---- */
+    .result-timestamp {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 12px; color: var(--mid);
+      padding: 7px 12px; margin-bottom: 10px;
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+    .result-timestamp-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #16A34A; flex-shrink: 0;
+    }
+
     /* ---- Utils ---- */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(8px); }
@@ -589,6 +602,12 @@
   <div class="hidden animate-in" id="state-result">
 
     <button id="back-to-list" class="back-to-list hidden" onclick="showState('multiple')">&#8592; Back to results</button>
+
+    <!-- Live result timestamp -->
+    <div class="result-timestamp" id="result-timestamp">
+      <div class="result-timestamp-dot"></div>
+      <span id="result-timestamp-text"></span>
+    </div>
 
     <!-- Banner -->
     <div class="result-banner" id="result-banner">
@@ -972,6 +991,15 @@ function renderResult(record, isActive, expDisplay) {
   lastSearchedCounty = countyRaw;
   lastSearchedLicense = record.license_number || '';
   document.getElementById('contact-info-strip').innerHTML = '';
+
+  var now = new Date();
+  var tsText = now.toLocaleString('en-US', {
+    timeZone: 'America/Chicago',
+    weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
+    hour: 'numeric', minute: '2-digit', hour12: true
+  }) + ' CT';
+  document.getElementById('result-timestamp-text').textContent =
+    'Official TDLR record · Pulled live from state database · ' + tsText;
 
   var trustEl = document.getElementById('result-trust');
   var networkContractor = LICENSE_TO_CONTRACTOR[record.license_number];
