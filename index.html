@@ -444,6 +444,11 @@
     }
     .btn-call:hover { background: #7A3D07; }
 
+    .contractor-website-link {
+      font-size: 12px; color: var(--blue); text-decoration: none; font-weight: 500;
+    }
+    .contractor-website-link:hover { text-decoration: underline; }
+
     .btn-quote {
       display: inline-flex; align-items: center; gap: 7px;
       padding: 10px 20px; background: var(--white);
@@ -1299,22 +1304,46 @@ function applyFilter(filter) {
   setTimeout(sendHeight, 150);
 }
 
+function revealContractorPhone(btn, href, phone, contractorId, filter) {
+  track('call_clicked', { contractor: contractorId, context: 'license_lookup', filter: filter });
+  var a = document.createElement('a');
+  a.href = href;
+  a.className = 'btn-call';
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.innerHTML = '&#9742; ' + phone;
+  btn.parentNode.replaceChild(a, btn);
+}
+
 function buildContractorCard(c, isFirst, filter) {
   var card = document.createElement('div');
   card.className = 'contractor-card animate-in';
 
   var badgeLabel = isFirst ? (FILTER_TOP_BADGE[filter] || 'Top Rated') : c.badge;
 
+  var isDesktop = window.innerWidth > 900 && !('ontouchstart' in window) && navigator.maxTouchPoints === 0;
+  var known = KNOWN_CONTACTS[c.license] || {};
+  var website = known.website || '';
+
   var callBtn;
   if (c.phoneHref) {
-    callBtn = '<a href="' + c.phoneHref + '" class="btn-call" target="_blank" rel="noopener" ' +
-      'onclick="track(\'call_clicked\',{contractor:\'' + c.id + '\',context:\'license_lookup\',filter:\'' + filter + '\'})">' +
-      '&#9742; ' + c.phone + '</a>';
+    if (isDesktop) {
+      callBtn = '<button class="btn-call" onclick="revealContractorPhone(this,\'' + c.phoneHref + '\',\'' + c.phone + '\',\'' + c.id + '\',\'' + filter + '\')">' +
+        'See Phone Number</button>';
+    } else {
+      callBtn = '<a href="' + c.phoneHref + '" class="btn-call" target="_blank" rel="noopener" ' +
+        'onclick="track(\'call_clicked\',{contractor:\'' + c.id + '\',context:\'license_lookup\',filter:\'' + filter + '\'})">' +
+        '&#9742; Call Now</a>';
+    }
   } else {
-    callBtn = '<a href="https://forneyhvacpros.com/find-contractor" class="btn-quote" target="_blank" rel="noopener" ' +
-      'onclick="track(\'quote_link_clicked\',{contractor:\'' + c.id + '\',context:\'license_lookup\'})">' +
-      'Get a Free Quote &rarr;</a>';
+    callBtn = '<a href="https://forneyhvacpros.com/find-contractor" class="btn-quote" target="_blank" rel="noopener">Get a Free Quote &rarr;</a>';
   }
+
+  var websiteLink = website
+    ? '<a href="' + website + '" class="contractor-website-link" target="_blank" rel="noopener" ' +
+      'onclick="track(\'website_clicked\',{contractor:\'' + c.id + '\',context:\'license_lookup\'})">' +
+      website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/.*$/, '') + ' &rarr;</a>'
+    : '';
 
   var miniBadges =
     '<div class="mini-badges">' +
@@ -1343,6 +1372,7 @@ function buildContractorCard(c, isFirst, filter) {
           '<span class="rating-value">' + c.rating.toFixed(1) + '</span>' +
           '<span class="rating-count">(' + c.reviewCount + ' reviews)</span>' +
           '<span class="est-tag">&#183; Est. ' + c.since + '</span>' +
+          (websiteLink ? '<span class="est-tag">&#183;</span>' + websiteLink : '') +
         '</div>' +
       '</div>' +
       '<span class="contractor-badge">' + badgeLabel + '</span>' +
