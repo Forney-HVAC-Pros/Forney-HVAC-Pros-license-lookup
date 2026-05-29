@@ -1361,6 +1361,106 @@ function buildContractorCard(c, isFirst, filter) {
 // ============================================================
 // MULTIPLE RESULTS
 // ============================================================
+function buildInlineResultCard(record) {
+  var today = new Date();
+  var isActive = false;
+  var expDisplay = 'Unknown';
+  var expRaw = record.license_expiration_date_mmddccyy || '';
+  if (expRaw) {
+    var parts = expRaw.split('/');
+    if (parts.length === 3) {
+      var expDate = new Date(parseInt(parts[2], 10), parseInt(parts[0], 10) - 1, parseInt(parts[1], 10));
+      isActive = expDate >= today;
+      expDisplay = expRaw;
+    }
+  }
+
+  var bizName  = record.business_name || record.owner_name || 'Unknown';
+  var ownerName = record.owner_name || '';
+  var countyRaw = record.business_county || '';
+  var county = countyRaw ? countyRaw.charAt(0) + countyRaw.slice(1).toLowerCase() : '';
+  var subtype = record.license_subtype ? ' (' + record.license_subtype + ')' : '';
+
+  var ownerLine = (record.business_name && ownerName)
+    ? '<span class="meta-item"><strong>License holder</strong> ' + ownerName + '</span>'
+    : '';
+  var countyLine = county
+    ? '<span class="meta-item"><strong>County</strong> ' + county + '</span>'
+    : '';
+
+  var metaHtml =
+    ownerLine +
+    '<span class="meta-item"><strong>License #</strong> ' + (record.license_number || '&mdash;') + '</span>' +
+    '<span class="meta-item"><strong>Type</strong> ' + (record.license_type || '&mdash;') + subtype + '</span>' +
+    countyLine +
+    '<span class="meta-item"><strong>Expires</strong> ' + expDisplay + '</span>';
+
+  var networkContractor = LICENSE_TO_CONTRACTOR[record.license_number];
+  var trustHtml = '';
+  if (networkContractor && networkContractor.trust) {
+    trustHtml = '<div class="result-trust-row">';
+    networkContractor.trust.forEach(function(key) {
+      var sig = TRUST_SIGNALS[key];
+      if (sig) {
+        trustHtml += '<span class="result-trust-chip">' +
+          '<span class="result-trust-chip-icon">' + sig.icon + '</span>' +
+          sig.label + '</span>';
+      }
+    });
+    trustHtml += '</div>';
+  }
+
+  var known = KNOWN_CONTACTS[record.license_number];
+  var actionsHtml = '';
+  if (isActive && known) {
+    var colStyle = 'display:flex;flex-direction:column;gap:0;';
+    var labelStyle = 'font-size:14px;font-weight:700;color:#15803D;margin-bottom:4px;';
+    var parts2 = '';
+    if (known.phone) {
+      parts2 += '<div style="' + colStyle + '">' +
+        '<span style="' + labelStyle + '">&#8595; Click to call</span>' +
+        '<a href="' + known.phoneHref + '" class="btn-contact-call" target="_blank" rel="noopener" ' +
+        'onclick="track(\'contact_call_clicked\',{source:\'inline\',business:\'' + bizName.replace(/'/g, '') + '\'})">' +
+        '&#9742;&nbsp;' + known.phone + '</a>' +
+        '</div>';
+    }
+    if (known.website) {
+      var domain = known.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/.*$/, '');
+      parts2 += '<div style="' + colStyle + '">' +
+        '<span style="' + labelStyle + '">&#8599; Visit website</span>' +
+        '<a href="' + known.website + '" class="btn-contact-web" target="_blank" rel="noopener" ' +
+        'onclick="track(\'contact_website_clicked\',{source:\'inline\',business:\'' + bizName.replace(/'/g, '') + '\'})">' +
+        domain + ' &rarr;</a>' +
+        '</div>';
+    }
+    parts2 += '<button class="network-toggle-btn" onclick="showSingleResult(' + JSON.stringify(record).replace(/</g,'\\u003c') + ',true)">' +
+      '<svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+      'Compare with our vetted local network</button>';
+    actionsHtml = '<div class="action-row" style="margin-top:14px;">' + parts2 + '</div>';
+  }
+
+  var bannerClass = 'result-banner animate-in ' + (isActive ? 'active' : 'expired');
+  var iconHtml = isActive
+    ? '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M4 11l5 5 9-10" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    : '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M6 6l10 10M16 6L6 16" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>';
+  var statusHtml = (isActive ? 'Active TDLR License' : 'License Expired') +
+    '<span class="vetted-badge">&#10003; Vetted network contractor</span>';
+
+  var div = document.createElement('div');
+  div.className = bannerClass;
+  div.style.marginBottom = '12px';
+  div.innerHTML =
+    '<div class="result-icon ' + (isActive ? '' : 'expired') + '" style="background:' + (isActive ? '#16A34A' : '#DC2626') + '">' + iconHtml + '</div>' +
+    '<div class="result-info">' +
+      '<div class="result-status" style="' + (isActive ? 'color:#15803D' : 'color:#DC2626') + '">' + statusHtml + '</div>' +
+      '<div class="result-name">' + bizName + '</div>' +
+      '<div class="result-meta">' + metaHtml + '</div>' +
+      trustHtml +
+      actionsHtml +
+    '</div>';
+  return div;
+}
+
 function showMultiple(records) {
   var acFirst = records.filter(function(r) { return AC_TYPES.indexOf(r.license_type) !== -1; })
     .concat(records.filter(function(r) { return AC_TYPES.indexOf(r.license_type) === -1; }));
@@ -1368,9 +1468,15 @@ function showMultiple(records) {
   var list = document.getElementById('multiple-list');
   list.innerHTML = '';
   acFirst.slice(0, 8).forEach(function(record) {
-    var li = document.createElement('li');
     var isNetwork = !!KNOWN_CONTACTS[record.license_number];
-    li.className = 'result-row' + (isNetwork ? ' result-row--network' : '');
+
+    if (isNetwork) {
+      list.appendChild(buildInlineResultCard(record));
+      return;
+    }
+
+    var li = document.createElement('li');
+    li.className = 'result-row';
     li.onclick = function() { showSingleResult(record, true); };
     var bizName   = record.business_name || record.owner_name || 'Unknown';
     var ownerMeta = record.business_name && record.owner_name ? ' &bull; ' + record.owner_name : '';
@@ -1378,14 +1484,7 @@ function showMultiple(records) {
     var county = record.business_county
       ? record.business_county.charAt(0) + record.business_county.slice(1).toLowerCase() + ' County'
       : '';
-    var networkBadge = isNetwork
-      ? '<div class="result-row-network-badge">' +
-          '<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="8" fill="#16A34A"/><path d="M4.5 8.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-          'Vetted local network' +
-        '</div>'
-      : '';
     li.innerHTML =
-      networkBadge +
       '<div class="result-row-name">' + bizName + '</div>' +
       '<div class="result-row-meta">License #' + (record.license_number || '?') +
         ' &bull; ' + (record.license_type || 'Unknown type') +
