@@ -967,35 +967,71 @@ function doLocationSearch(raw) {
 }
 
 function handleLocationResults(data, label) {
-  if (!data || !data.length) {
-    showNotFound('No licensed HVAC contractors found for that location. Try a city like Forney or Mesquite, or a county name like Kaufman or Rockwall.');
-    return;
-  }
-  // Filter to service area counties
-  var inArea = data.filter(function(r) {
-    return SERVICE_AREA_COUNTIES[(r.business_county || '').toUpperCase()];
+  // Filter raw results to service area counties and remove our vetted contractors
+  // (they will be pinned at the top separately)
+  var vettedLicenses = {};
+  Object.keys(CONTRACTORS).forEach(function(id) { vettedLicenses[CONTRACTORS[id].license] = 1; });
+
+  var others = (data || []).filter(function(r) {
+    return !vettedLicenses[r.license_number] &&
+           SERVICE_AREA_COUNTIES[(r.business_county || '').toUpperCase()];
   });
-  var records = inArea.length ? inArea : data;
 
-  if (!records.length) {
-    showNotFound('No licensed HVAC contractors found in our service area for that county. Try Kaufman, Rockwall, Dallas, or Henderson.');
-    return;
-  }
-
-  // Sort: network contractors first, then alphabetically
-  records.sort(function(a, b) {
-    var aNet = LICENSE_TO_CONTRACTOR[a.license_number] ? 0 : 1;
-    var bNet = LICENSE_TO_CONTRACTOR[b.license_number] ? 0 : 1;
-    if (aNet !== bNet) return aNet - bNet;
+  others.sort(function(a, b) {
     return (a.business_name || '').localeCompare(b.business_name || '');
   });
 
-  var total = records.length;
-  var countLabel = total === 1 ? '1 licensed HVAC contractor found' : total + ' licensed HVAC contractors found';
-  var sub = total > 25
-    ? 'Showing top 25. Active TDLR licenses only. Select a contractor to view full details.'
-    : 'Active TDLR licenses only. Select a contractor to view full details.';
-  showMultiple(records, 25, countLabel, sub);
+  var total = others.length;
+  var heading = 'Licensed HVAC contractors in this area';
+  var sub = 'Active TDLR licenses only. Select a contractor to view full details.';
+
+  // Set heading/sub and clear list
+  document.getElementById('multiple-heading').textContent = heading;
+  document.getElementById('multiple-sub').textContent = sub;
+  var list = document.getElementById('multiple-list');
+  list.innerHTML = '';
+
+  // --- Pinned: vetted contractor cards ---
+  var pinnedWrap = document.createElement('div');
+  pinnedWrap.style.cssText = 'margin-bottom:20px;';
+  var pinnedLabel = document.createElement('div');
+  pinnedLabel.style.cssText = 'font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#15803D;margin-bottom:10px;';
+  pinnedLabel.textContent = 'Our Vetted Network - Serving This Area';
+  pinnedWrap.appendChild(pinnedLabel);
+  ['jandr', 'williams', 'bolton', 'infinity'].forEach(function(id, idx) {
+    pinnedWrap.appendChild(buildContractorCard(CONTRACTORS[id], idx === 0, 'all'));
+  });
+  list.appendChild(pinnedWrap);
+
+  // --- Separator + other TDLR results ---
+  if (total > 0) {
+    var sep = document.createElement('div');
+    sep.style.cssText = 'font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid);margin:8px 0 12px;';
+    sep.textContent = 'Other Licensed Contractors' + (total > 25 ? ' (showing 25 of ' + total + ')' : ' (' + total + ')');
+    list.appendChild(sep);
+
+    others.slice(0, 25).forEach(function(record) {
+      var li = document.createElement('li');
+      li.className = 'result-row';
+      li.onclick = function() { showSingleResult(record, true); };
+      var bizName = record.business_name || record.owner_name || 'Unknown';
+      var ownerMeta = record.business_name && record.owner_name ? ' &bull; ' + record.owner_name : '';
+      var exp = record.license_expiration_date_mmddccyy || '&mdash;';
+      var county = record.business_county
+        ? record.business_county.charAt(0) + record.business_county.slice(1).toLowerCase() + ' County'
+        : '';
+      li.innerHTML =
+        '<div class="result-row-name">' + bizName + '</div>' +
+        '<div class="result-row-meta">License #' + (record.license_number || '?') +
+          ' &bull; ' + (record.license_type || 'Unknown type') +
+          (county ? ' &bull; ' + county : '') +
+          ' &bull; Exp: ' + exp + ownerMeta + '</div>';
+      list.appendChild(li);
+    });
+  }
+
+  showState('multiple');
+  setTimeout(sendHeight, 150);
 }
 
 function buildNamePattern(raw) {
