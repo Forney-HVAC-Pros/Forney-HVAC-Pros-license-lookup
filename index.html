@@ -570,7 +570,7 @@
     <div class="tab-row">
       <button class="tab-btn active" id="tab-number" onclick="setSearchMode('number')">License Number</button>
       <button class="tab-btn" id="tab-name" onclick="setSearchMode('name')">Business / Name</button>
-      <button class="tab-btn" id="tab-location" onclick="setSearchMode('location')">City / ZIP</button>
+      <button class="tab-btn" id="tab-location" onclick="setSearchMode('location')">County</button>
     </div>
 
     <div class="search-row">
@@ -856,9 +856,9 @@ function setSearchMode(mode) {
     document.getElementById('search-hint').textContent = 'Example: Bolton Heating or Williams Services';
     hint2.style.display = 'none';
   } else {
-    input.placeholder = 'City, county, or ZIP code...';
+    input.placeholder = 'County name (e.g. Kaufman, Rockwall)...';
     input.inputMode = 'text';
-    document.getElementById('search-hint').textContent = 'Example: Forney, Kaufman County, or 75126 - shows licensed HVAC contractors in this area';
+    document.getElementById('search-hint').textContent = 'Example: Kaufman or Kaufman County - shows licensed HVAC contractors in that county';
     hint2.style.display = 'none';
   }
   input.value = '';
@@ -924,51 +924,21 @@ function doLocationSearch(raw) {
   showState('loading');
   track('license_search_performed', { search_type: 'location', query: raw });
 
-  var digits = raw.replace(/\D/g, '');
-  var isZip = digits.length === 5 && digits === raw.replace(/\s/g, '');
-
-  var acFilter = "license_type in('A/C Contractor','A/C Technician','A/C CE Provider')";
-
-  if (isZip) {
-    var url = SOCRATA_URL + '?$where=' + encodeURIComponent(
-      "business_zip='" + digits + "' AND " + acFilter
-    ) + '&$limit=50';
-    fetch(url)
-      .then(function(r) { return r.json(); })
-      .then(function(data) { handleLocationResults(data, null); })
-      .catch(function() { showError(); });
-    return;
-  }
-
-  // Strip "county" suffix, normalize to uppercase
+  // Strip "county" suffix and normalize
   var cleaned = raw.replace(/\bcounty\b/gi, '').replace(/,/g, '').trim().toUpperCase();
+  if (!cleaned) { showNotFound('Please enter a county name such as Kaufman or Rockwall.'); return; }
 
-  // Try city first
-  var cityUrl = SOCRATA_URL + '?$where=' + encodeURIComponent(
-    "upper(business_city)='" + cleaned.replace(/'/g, "''") + "' AND " + acFilter
-  ) + '&$limit=50';
+  var url = SOCRATA_URL + '?business_county=' + encodeURIComponent(cleaned) + '&$limit=50';
 
-  fetch(cityUrl)
+  fetch(url)
     .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data && data.length) {
-        handleLocationResults(data, cleaned);
-      } else {
-        // Fallback: try county
-        var countyUrl = SOCRATA_URL + '?$where=' + encodeURIComponent(
-          "upper(business_county)='" + cleaned.replace(/'/g, "''") + "' AND " + acFilter
-        ) + '&$limit=50';
-        return fetch(countyUrl)
-          .then(function(r) { return r.json(); })
-          .then(function(data2) { handleLocationResults(data2, cleaned); });
-      }
-    })
+    .then(function(data) { handleLocationResults(data, cleaned); })
     .catch(function() { showError(); });
 }
 
 function handleLocationResults(data, label) {
   if (!data || !data.length) {
-    showNotFound('No licensed HVAC contractors found in our service area for that location. Try a nearby city, your county name, or a ZIP code.');
+    showNotFound('No licensed HVAC contractors found for that county. Try Kaufman, Rockwall, Dallas, or Henderson.');
     return;
   }
   // Filter to service area counties
@@ -978,7 +948,7 @@ function handleLocationResults(data, label) {
   var records = inArea.length ? inArea : data;
 
   if (!records.length) {
-    showNotFound('No licensed HVAC contractors found in our service area for that location. Try Forney, Kaufman County, Rockwall, or a local ZIP code.');
+    showNotFound('No licensed HVAC contractors found in our service area for that county. Try Kaufman, Rockwall, Dallas, or Henderson.');
     return;
   }
 
@@ -1173,7 +1143,7 @@ function renderResult(record, isActive, expDisplay) {
       networkLabel.className = 'network-label primary';
       networkLabel.textContent = 'Find a Verified Contractor Instead';
       networkHeading.textContent = 'Our pre-vetted local network is ready to help';
-      networkSub.textContent = 'Every contractor below holds an active TDLR license, has a minimum 4.8-star Google rating, and is locally based in Forney and Kaufman County. Free to homeowners &#8212; always.';
+      networkSub.textContent = 'Every contractor below holds an active TDLR license, has a minimum 4.8-star Google rating, and is locally based in Forney and Kaufman County. Free to homeowners, always.';
     } else {
       networkCard.classList.add('hidden');
     }
@@ -1210,7 +1180,7 @@ function showNotFound(msg) {
   document.getElementById('network-label').className   = 'network-label primary';
   document.getElementById('network-label').textContent  = 'Find a Verified Contractor Instead';
   document.getElementById('network-heading').textContent = 'Our pre-vetted local network is ready to help';
-  document.getElementById('network-sub').textContent    = 'Every contractor below holds an active TDLR license, has a minimum 4.8-star Google rating, and is locally based in Forney and Kaufman County. Free to homeowners &#8212; always.';
+  document.getElementById('network-sub').textContent    = 'Every contractor below holds an active TDLR license, has a minimum 4.8-star Google rating, and is locally based in Forney and Kaufman County. Free to homeowners, always.';
 
   applyFilter('all');
   track('license_result_viewed', { result: 'not_found' });
