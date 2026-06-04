@@ -194,7 +194,7 @@
       font-family: 'Inter', sans-serif;
       transition: all 0.15s;
     }
-    .tab-btn:first-child { border-right: 1.5px solid var(--border); }
+    .tab-btn:not(:last-child) { border-right: 1.5px solid var(--border); }
     .tab-btn.active { background: var(--green); color: var(--white); }
 
     .search-row { display: flex; gap: 10px; }
@@ -570,6 +570,7 @@
     <div class="tab-row">
       <button class="tab-btn active" id="tab-number" onclick="setSearchMode('number')">License Number</button>
       <button class="tab-btn" id="tab-name" onclick="setSearchMode('name')">Business / Name</button>
+      <button class="tab-btn" id="tab-location" onclick="setSearchMode('location')">City / ZIP</button>
     </div>
 
     <div class="search-row">
@@ -585,7 +586,7 @@
       <button class="btn-search" id="search-btn" onclick="doSearch()">Look Up</button>
     </div>
     <p class="search-hint" id="search-hint">Example: 590 or ACR-00590</p>
-    <p class="search-hint" style="margin-top:4px;">License codes: <strong>TACLA</strong> = A/C Technician &nbsp;&middot;&nbsp; <strong>TACLB</strong> = A/C Contractor &nbsp;&middot;&nbsp; <strong>ACR</strong> = legacy format</p>
+    <p class="search-hint" style="margin-top:4px;" id="search-hint2">License codes: <strong>TACLA</strong> = A/C Technician &nbsp;&middot;&nbsp; <strong>TACLB</strong> = A/C Contractor &nbsp;&middot;&nbsp; <strong>ACR</strong> = legacy format</p>
   </div>
 
   <!-- Loading -->
@@ -598,8 +599,8 @@
 
   <!-- Multiple results picker -->
   <div class="card hidden animate-in" id="state-multiple">
-    <div style="font-family:'Lora',Georgia,serif;font-size:18px;font-weight:600;color:var(--dark);margin-bottom:4px;">Multiple records found</div>
-    <p style="font-size:13px;color:var(--mid);margin-bottom:16px;">Select the contractor you&#8217;re looking for:</p>
+    <div style="font-family:'Lora',Georgia,serif;font-size:18px;font-weight:600;color:var(--dark);margin-bottom:4px;" id="multiple-heading">Multiple records found</div>
+    <p style="font-size:13px;color:var(--mid);margin-bottom:16px;" id="multiple-sub">Select the contractor you&#8217;re looking for:</p>
     <ul class="results-list" id="multiple-list"></ul>
   </div>
 
@@ -839,17 +840,26 @@ var lastSearchedLicense = '';
 // ============================================================
 function setSearchMode(mode) {
   searchMode = mode;
-  document.getElementById('tab-number').className = 'tab-btn' + (mode === 'number' ? ' active' : '');
-  document.getElementById('tab-name').className   = 'tab-btn' + (mode === 'name'   ? ' active' : '');
+  document.getElementById('tab-number').className   = 'tab-btn' + (mode === 'number'   ? ' active' : '');
+  document.getElementById('tab-name').className     = 'tab-btn' + (mode === 'name'     ? ' active' : '');
+  document.getElementById('tab-location').className = 'tab-btn' + (mode === 'location' ? ' active' : '');
   var input = document.getElementById('search-input');
+  var hint2 = document.getElementById('search-hint2');
   if (mode === 'number') {
     input.placeholder = 'Enter license number...';
     input.inputMode = 'numeric';
     document.getElementById('search-hint').textContent = 'Example: 590 or ACR-00590';
-  } else {
+    hint2.style.display = '';
+  } else if (mode === 'name') {
     input.placeholder = 'Enter business or owner name...';
     input.inputMode = 'text';
     document.getElementById('search-hint').textContent = 'Example: Bolton Heating or Williams Services';
+    hint2.style.display = 'none';
+  } else {
+    input.placeholder = 'City, county, or ZIP code...';
+    input.inputMode = 'text';
+    document.getElementById('search-hint').textContent = 'Example: Forney, Kaufman County, or 75126 - shows licensed HVAC contractors in this area';
+    hint2.style.display = 'none';
   }
   input.value = '';
   input.focus();
@@ -862,6 +872,11 @@ function setSearchMode(mode) {
 function doSearch() {
   var raw = document.getElementById('search-input').value.trim();
   if (!raw) return;
+
+  if (searchMode === 'location') {
+    doLocationSearch(raw);
+    return;
+  }
 
   var numOnly = raw.replace(/\D/g, '');
   var looksLikeNumber = numOnly.length > 0 && numOnly.length === raw.replace(/[\s\-]/g, '').length;
@@ -903,6 +918,84 @@ function doSearch() {
       }
     })
     .catch(function() { showError(); });
+}
+
+function doLocationSearch(raw) {
+  showState('loading');
+  track('license_search_performed', { search_type: 'location', query: raw });
+
+  var digits = raw.replace(/\D/g, '');
+  var isZip = digits.length === 5 && digits === raw.replace(/\s/g, '');
+
+  var acFilter = "license_type in('A/C Contractor','A/C Technician','A/C CE Provider')";
+
+  if (isZip) {
+    var url = SOCRATA_URL + '?$where=' + encodeURIComponent(
+      "business_zip='" + digits + "' AND " + acFilter
+    ) + '&$limit=50';
+    fetch(url)
+      .then(function(r) { return r.json(); })
+      .then(function(data) { handleLocationResults(data, null); })
+      .catch(function() { showError(); });
+    return;
+  }
+
+  // Strip "county" suffix, normalize to uppercase
+  var cleaned = raw.replace(/\bcounty\b/gi, '').replace(/,/g, '').trim().toUpperCase();
+
+  // Try city first
+  var cityUrl = SOCRATA_URL + '?$where=' + encodeURIComponent(
+    "upper(business_city)='" + cleaned.replace(/'/g, "''") + "' AND " + acFilter
+  ) + '&$limit=50';
+
+  fetch(cityUrl)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data && data.length) {
+        handleLocationResults(data, cleaned);
+      } else {
+        // Fallback: try county
+        var countyUrl = SOCRATA_URL + '?$where=' + encodeURIComponent(
+          "upper(business_county)='" + cleaned.replace(/'/g, "''") + "' AND " + acFilter
+        ) + '&$limit=50';
+        return fetch(countyUrl)
+          .then(function(r) { return r.json(); })
+          .then(function(data2) { handleLocationResults(data2, cleaned); });
+      }
+    })
+    .catch(function() { showError(); });
+}
+
+function handleLocationResults(data, label) {
+  if (!data || !data.length) {
+    showNotFound('No licensed HVAC contractors found in our service area for that location. Try a nearby city, your county name, or a ZIP code.');
+    return;
+  }
+  // Filter to service area counties
+  var inArea = data.filter(function(r) {
+    return SERVICE_AREA_COUNTIES[(r.business_county || '').toUpperCase()];
+  });
+  var records = inArea.length ? inArea : data;
+
+  if (!records.length) {
+    showNotFound('No licensed HVAC contractors found in our service area for that location. Try Forney, Kaufman County, Rockwall, or a local ZIP code.');
+    return;
+  }
+
+  // Sort: network contractors first, then alphabetically
+  records.sort(function(a, b) {
+    var aNet = LICENSE_TO_CONTRACTOR[a.license_number] ? 0 : 1;
+    var bNet = LICENSE_TO_CONTRACTOR[b.license_number] ? 0 : 1;
+    if (aNet !== bNet) return aNet - bNet;
+    return (a.business_name || '').localeCompare(b.business_name || '');
+  });
+
+  var total = records.length;
+  var countLabel = total === 1 ? '1 licensed HVAC contractor found' : total + ' licensed HVAC contractors found';
+  var sub = total > 25
+    ? 'Showing top 25. Active TDLR licenses only. Select a contractor to view full details.'
+    : 'Active TDLR licenses only. Select a contractor to view full details.';
+  showMultiple(records, 25, countLabel, sub);
 }
 
 function buildNamePattern(raw) {
@@ -1508,13 +1601,17 @@ function buildInlineResultCard(record) {
   return div;
 }
 
-function showMultiple(records) {
+function showMultiple(records, limit, heading, sub) {
+  var cap = limit || 8;
   var acFirst = records.filter(function(r) { return AC_TYPES.indexOf(r.license_type) !== -1; })
     .concat(records.filter(function(r) { return AC_TYPES.indexOf(r.license_type) === -1; }));
 
+  document.getElementById('multiple-heading').textContent = heading || 'Multiple records found';
+  document.getElementById('multiple-sub').textContent = sub || 'Select the contractor you are looking for:';
+
   var list = document.getElementById('multiple-list');
   list.innerHTML = '';
-  acFirst.slice(0, 8).forEach(function(record) {
+  acFirst.slice(0, cap).forEach(function(record) {
     var isNetwork = !!KNOWN_CONTACTS[record.license_number];
 
     if (isNetwork) {
