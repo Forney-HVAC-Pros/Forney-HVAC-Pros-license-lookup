@@ -586,7 +586,19 @@
       <button class="btn-search" id="search-btn" onclick="doSearch()">Look Up</button>
     </div>
     <p class="search-hint" id="search-hint">Example: 590 or ACR-00590</p>
-    <p class="search-hint" style="margin-top:4px;" id="search-hint2">License codes: <strong>TACLA</strong> = A/C Technician &nbsp;&middot;&nbsp; <strong>TACLB</strong> = A/C Contractor &nbsp;&middot;&nbsp; <strong>ACR</strong> = legacy format</p>
+    <p class="search-hint" style="margin-top:4px;" id="search-hint2">License codes: <strong>TACLA</strong> = A/C Technician &nbsp;&middot;&nbsp; <strong>TACLB</strong> = A/C Contractor &nbsp;&middot;&nbsp; <strong>ACR</strong> = legacy format &nbsp;&middot;&nbsp; <a href="https://forneyhvacpros.com/tacla-taclb-texas-hvac-license" target="_blank" rel="noopener" style="color:var(--blue);font-weight:600;">What&#8217;s the difference?</a></p>
+  </div>
+
+  <!-- Pre-search vetted network strip -->
+  <div id="pre-search-strip" style="background:var(--white);border:1.5px solid var(--border);border-radius:4px;padding:14px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="8" fill="#16A34A"/><path d="M4.5 8.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span style="font-size:13px;font-weight:700;color:var(--dark);">10 vetted Forney contractors</span>
+      </div>
+      <span style="font-size:13px;color:var(--mid);">All TDLR licensed &nbsp;&middot;&nbsp; 4.7&#8211;5.0&#9733; on Google &nbsp;&middot;&nbsp; Free to homeowners</span>
+    </div>
+    <a href="https://forneyhvacpros.com/find-a-quality-hvac-contractor" target="_blank" rel="noopener" onclick="track('pre_search_cta_clicked',{})" style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;background:var(--green);color:#fff;border-radius:4px;font-size:13px;font-weight:700;text-decoration:none;font-family:Inter,sans-serif;white-space:nowrap;">Skip to Matching Tool &rarr;</a>
   </div>
 
   <!-- Loading -->
@@ -1194,13 +1206,27 @@ function renderResult(record, isActive, expDisplay) {
         '<span class="cta-sub">pre-screened Forney area pros, free to homeowners</span></span>' +
         '</button>';
     }
+    var ctaContext, ctaMessage, ctaLabel;
+    if (isNetworkContractor) {
+      ctaContext = 'vetted_active';
+      ctaMessage = 'This contractor is in our vetted network. Use the free matching tool to get them on your job -- or compare with others before you decide.';
+      ctaLabel = 'Get Matched -- Free &rarr;';
+    } else if (inServiceArea) {
+      ctaContext = 'inarea_active';
+      ctaMessage = 'This contractor is licensed. Want to compare with 10 vetted pros in Forney before you hire?';
+      ctaLabel = 'Compare Vetted Local Contractors -- Free &rarr;';
+    } else {
+      ctaContext = 'active_result';
+      ctaMessage = 'Want to compare quotes or skip the search entirely?';
+      ctaLabel = 'Compare With Other Vetted Local Contractors &rarr;';
+    }
     var ctaHtml =
       '<div style="margin-top:14px;padding:14px 16px;background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:6px;">' +
-        '<div style="font-size:13px;color:#15803D;font-weight:600;margin-bottom:8px;">Want to compare quotes or skip the search entirely?</div>' +
+        '<div style="font-size:13px;color:#15803D;font-weight:600;margin-bottom:8px;">' + ctaMessage + '</div>' +
         '<a href="https://forneyhvacpros.com/find-a-quality-hvac-contractor" target="_blank" rel="noopener" ' +
-          'onclick="track(\'find_contractor_cta_clicked\',{context:\'active_result\'})" ' +
+          'onclick="track(\'find_contractor_cta_clicked\',{context:\'' + ctaContext + '\'})" ' +
           'style="display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:#172620;color:#fff;border-radius:4px;font-size:14px;font-weight:600;text-decoration:none;font-family:Inter,sans-serif;">' +
-          'Compare With Other Vetted Local Contractors &rarr;</a>' +
+          ctaLabel + '</a>' +
       '</div>';
     actionsEl.innerHTML = ((contactHtml || networkBtn)
       ? '<div class="action-row">' + contactHtml + networkBtn + '</div>'
@@ -1612,7 +1638,7 @@ function buildInlineResultCard(record) {
     var compareBtn = '<button class="network-toggle-btn" onclick="showSingleResult(' + safeRecord + ',true)">' +
       '<svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
       'Compare with our vetted local network</button>';
-    var quoteBtn = '<a href="https://forneyhvacpros.com/find-contractor" class="btn-quote" target="_blank" rel="noopener" ' +
+    var quoteBtn = '<a href="https://forneyhvacpros.com/find-a-quality-hvac-contractor" class="btn-quote" target="_blank" rel="noopener" ' +
       'onclick="track(\'quote_link_clicked\',{source:\'inline\',business:\'' + bizName.replace(/'/g, '') + '\'})">' +
       'Request Free Quote &rarr;</a>';
     actionsHtml =
