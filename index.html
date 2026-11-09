@@ -125,12 +125,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lora:wght@600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9LSH07TDFN"></script>
+  <!-- P0 DRAFT: load GA4 ONLY when opened directly; when embedded, events go to the parent page. -->
   <script>
+    window.FHP_FRAMED = (function () { try { return window.self !== window.top; } catch (e) { return true; } })();
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-9LSH07TDFN');
+    if (!window.FHP_FRAMED) {
+      var fhpGa = document.createElement('script');
+      fhpGa.async = true;
+      fhpGa.src = 'https://www.googletagmanager.com/gtag/js?id=G-9LSH07TDFN';
+      document.head.appendChild(fhpGa);
+      gtag('js', new Date());
+      gtag('config', 'G-9LSH07TDFN');
+    }
   </script>
 
   <style>
@@ -1738,8 +1745,16 @@ function sendHeight() {
   window.parent.postMessage({ iframeHeight: document.documentElement.scrollHeight }, '*');
 }
 
+// P0 Fix 2: when embedded, send events to the forneyhvacpros.com parent page.
+var FHP_PARENT_ORIGINS = ['https://forneyhvacpros.com', 'https://www.forneyhvacpros.com'];
 function track(event, params) {
-  if (typeof gtag !== 'undefined') gtag('event', event, params || {});
+  params = params || {};
+  if (window.FHP_FRAMED) {
+    var msg = { type: 'fhp-event', v: 1, tool: 'license_lookup', event: event, params: params };
+    FHP_PARENT_ORIGINS.forEach(function (o) { try { window.parent.postMessage(msg, o); } catch (e) {} });
+  } else if (typeof gtag !== 'undefined') {
+    gtag('event', event, params);
+  }
 }
 
 window.addEventListener('load', sendHeight);
